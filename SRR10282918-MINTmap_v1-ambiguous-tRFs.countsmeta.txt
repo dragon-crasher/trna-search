@@ -1,0 +1,2 @@
+Total reads in -f input file	Total unnormalized reads in ambiguous-tRFs	Percent
+9123381	3695	0.04%
