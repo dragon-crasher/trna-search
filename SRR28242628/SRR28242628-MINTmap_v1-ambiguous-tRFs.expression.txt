@@ -1,0 +1,1 @@
+MINTbase Unique ID	tRF sequence	tRF type(s)	Unnormalized read counts	RPM read counts (using all counts from this file[0] in denominator)	RPM read counts (using read count of input file from -f parameter[17551391] in denominator)	RPM read counts (using read count from optional -d parameter[na] in denominator)	Sequence locations in tRNA space (comma deliminated)
