@@ -44,11 +44,12 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
         continue
     }
     
-    # Step 2: Convert SRA to FASTQ using fasterq-dump
+    # Step 2: Convert SRA to FASTQ using fasterq-dump with --split-files for paired-end reads
     echo "Converting $ACCESSION to FASTQ..." | tee -a "$LOG_FILE"
     fasterq-dump "$SRA_DIR/$ACCESSION/$ACCESSION.sra" \
         --outdir "$FASTQ_DIR/$ACCESSION" \
         --temp "$FASTQ_DIR/$ACCESSION/tmp" \
+        --split-files \
         --threads 4 || {
         echo "ERROR: Failed to convert $ACCESSION, continuing with next accession..." | tee -a "$LOG_FILE"
         continue
@@ -70,18 +71,30 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
         continue
     fi
     
-    # If single-end data (one FASTQ file)
-    if [[ ${#FASTQ_FILES[@]} -eq 1 ]]; then
-        # Run the pipeline script for this accession
-        ./pipeline2.sh "${FASTQ_FILES[0]}" "$ACCESSION" || {
-            echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
-        }
+    # If paired-end data, use the first two files
+    if [[ ${#FASTQ_FILES[@]} -ge 2 ]]; then
+        # Assuming the first two files are the paired-end reads
+        TRIMMED_FILE1="/mnt/d/bioinformatics/RNAseq_pipeline/data/${ACCESSION}_1_trimmed.fastq"
+        TRIMMED_FILE2="/mnt/d/bioinformatics/RNAseq_pipeline/data/${ACCESSION}_2_trimmed.fastq"
+        
+        # Run Cutadapt for adapter trimming
+        echo "Running Cutadapt for $ACCESSION..." | tee -a "$LOG_FILE"
+        cutadapt -q 10 -o "$TRIMMED_FILE1" -p "$TRIMMED_FILE2" "${FASTQ_FILES[0]}" "${FASTQ_FILES[1]}" --cores=4
+        
+        # Run FastQC on trimmed files
+        echo "Running FastQC on trimmed files for $ACCESSION..." | tee -a "$LOG_FILE"
+        fastqc "$TRIMMED_FILE1" -o "/mnt/d/bioinformatics/RNAseq_pipeline/data/fastqc/$ACCESSION"
+        fastqc "$TRIMMED_FILE2" -o "/mnt/d/bioinformatics/RNAseq_pipeline/data/fastqc/$ACCESSION"
+        
+        # Run MINTmap
+        echo "Running MINTmap for $ACCESSION..." | tee -a "$LOG_FILE"
+        cd /mnt/d/bioinformatics/MINT/MINTmap-release-v1.0/MINTmap-release-v1.0
+        ./MINTmap.pl -f "$TRIMMED_FILE1" -p "/mnt/d/bioinformatics/MINT/MINTmap-release-v1.0/MINTmap-release-v1.0/outputs/$ACCESSION"
+        ./MINTmap.pl -f "$TRIMMED_FILE2" -p "/mnt/d/bioinformatics/MINT/MINTmap-release-v1.0/MINTmap-release-v1.0/outputs/$ACCESSION"
+        
     else
-        # If paired-end data, you may need to modify your pipeline script or handle differently
-        echo "Found multiple FASTQ files for $ACCESSION. Using first file: ${FASTQ_FILES[0]}" | tee -a "$LOG_FILE"
-        ./pipeline2.sh "${FASTQ_FILES[0]}" "$ACCESSION" || {
-            echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
-        }
+        echo "Unexpected number of FASTQ files for $ACCESSION" | tee -a "$LOG_FILE"
+        continue
     fi
     
     # Go back to the original directory for the next iteration
