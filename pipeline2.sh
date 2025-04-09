@@ -51,6 +51,7 @@ fastqc "$INPUT_FILE" -o "$FASTQC_OUTPUT_DIR"
 # java -jar /mnt/d/bioinformatics/Trimmomatic-0.39/trimmomatic-0.39.jar SE -threads 4 "$INPUT_FILE" "$TRIMMED_FILE" TRAILING:10 -phred33
 
 # echo "Trimmomatic finished running!"
+conda activate cutadapt
 
 echo "Running cutadapt..."
 TRIMMED_FILE="/mnt/d/bioinformatics/RNAseq_pipeline/data/${FILENAME}_trimmed.fastq"
