@@ -53,12 +53,12 @@ def read_and_merge_dataframes(folder_path, count_threshold=10, output_csv="merge
         merged_df.to_csv(output_csv, index=True)  # Export to CSV with index
         
         # Generate colData
-        col_data = pd.DataFrame({
-            'sample': sample_names,
-            # Example condition; adjust based on your data
-            'condition': ['control' if 'control' in name else 'treatment' for name in sample_names]
-        })
-        col_data.to_csv("/mnt/d/bioinformatics/RNAseq_pipeline/diffexp/colData.csv", index=False)
+        # col_data = pd.DataFrame({
+        #     'sample': sample_names,
+        #     # Example condition; adjust based on your data
+        #     'condition': ['control' if 'control' in name else 'treatment' for name in sample_names]
+        # })
+        # col_data.to_csv("/mnt/d/bioinformatics/RNAseq_pipeline/diffexp/colData.csv", index=False)
         
         print(f"Merged DataFrame exported to {output_csv}")
         print("ColData exported to colData.csv")

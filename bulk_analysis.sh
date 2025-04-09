@@ -22,7 +22,7 @@ fi
 
 # Clean the accession file to remove trailing spaces
 TMP_ACCESSION_FILE="$WORK_DIR/clean_GSE156124.txt"
-sed 's/[[:space:]]*$//' "$ACCESSION_FILE" > "$TMP_ACCESSION_FILE"
+sed 's/[[:space:]]*$//' "$ACCESSION_FILE" > "$TMP_ACCESSION_FILE"   
 
 # Process all accessions
 while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
