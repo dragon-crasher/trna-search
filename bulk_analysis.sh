@@ -5,7 +5,7 @@ set -e
 WORK_DIR="/mnt/d/bioinformatics/SRA/tmp"
 SRA_DIR="$WORK_DIR/sra"              # Directory to store downloaded SRA files
 FASTQ_DIR="$WORK_DIR/fastq"          # Directory to store converted FASTQ files
-ACCESSION_FILE="$WORK_DIR/GSE156124.txt"  # File containing SRA accession numbers (one per line)
+ACCESSION_FILE="/mnt/d/bioinformatics/RNAseq_pipeline/script/run_numbers.txt"  # File containing SRA accession numbers (one per line)
 
 # Create directories
 mkdir -p "$SRA_DIR" "$FASTQ_DIR"
@@ -73,13 +73,13 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     # If single-end data (one FASTQ file)
     if [[ ${#FASTQ_FILES[@]} -eq 1 ]]; then
         # Run the pipeline script for this accession
-        ./pipeline2.sh "${FASTQ_FILES[0]}" "$ACCESSION" || {
+        ./tRNA_pipeline.sh "${FASTQ_FILES[0]}" "$ACCESSION" || {
             echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
         }
     else
         # If paired-end data, you may need to modify your pipeline script or handle differently
         echo "Found multiple FASTQ files for $ACCESSION. Using first file: ${FASTQ_FILES[0]}" | tee -a "$LOG_FILE"
-        ./pipeline2.sh "${FASTQ_FILES[0]}" "$ACCESSION" || {
+        ./tRNA_pipeline.sh "${FASTQ_FILES[0]}" "$ACCESSION" || {
             echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
         }
     fi
