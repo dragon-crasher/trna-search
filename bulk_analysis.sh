@@ -1,5 +1,4 @@
 #!/bin/bash
-set -euo pipefail
 
 # Check for required arguments
 if [ $# -lt 2 ]; then
@@ -10,7 +9,7 @@ fi
 
 PARAMETERS_FILE=$1
 ACCESSION_FILE=$2
-
+source "$PARAMETERS_FILE"
 # Validate input files
 if [[ ! -f "$PARAMETERS_FILE" ]]; then
     echo "ERROR: Parameters file $PARAMETERS_FILE not found! Exiting..."
@@ -22,15 +21,18 @@ if [[ ! -f "$ACCESSION_FILE" ]]; then
     exit 1
 fi
 
-WORK_DIR="$MAINWORKDIR/SRA/tmp"
+
+WORK_DIR="$MAINWORKDIR"
 SRA_DIR="$WORK_DIR/sra"
 FASTQ_DIR="$WORK_DIR/fastq"
+
+
 mkdir -p "$SRA_DIR" "$FASTQ_DIR"
 
 LOG_FILE="$WORK_DIR/download_log.txt"
 echo "Starting SRA download and conversion at $(date)" > "$LOG_FILE"
 
-TMP_ACCESSION_FILE="$WORK_DIR/clean_accessions.txt"
+TMP_ACCESSION_FILE="$WORK_DIR/RNAseq_pipeline/scripts/trna-search/clean_accessions.txt"
 sed 's/[[:space:]]*$//' "$ACCESSION_FILE" > "$TMP_ACCESSION_FILE"
 
 ORIG_DIR=$(pwd)
@@ -60,7 +62,9 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     echo "Completed download and conversion for $ACCESSION" | tee -a "$LOG_FILE"
 
     echo "Starting tsRNA analysis pipeline for $ACCESSION..." | tee -a "$LOG_FILE"
-    cd $MAINWORKDIR/RNAseq_pipeline/script
+
+    cd $MAINWORKDIR/RNAseq_pipeline/scripts/trna-search
+
 
     FASTQ_FILES=("$FASTQ_DIR/$ACCESSION"/*.fastq)
     if [[ ${#FASTQ_FILES[@]} -eq 0 ]]; then

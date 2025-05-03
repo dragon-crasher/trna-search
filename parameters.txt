@@ -1,7 +1,7 @@
 # cutadapt parameters
-ADAPTER_LIST="Illumina QIAseq"
+ADAPTER_LIST="Truseq"
 MINLEN=12
 MAXLEN=50
 MIN_QUALITY=25
-MAINWORKDIR = "/mnt/d/bioinformatics"
+MAINWORKDIR=/Users/bhavanayadavk/bioinformatics
 

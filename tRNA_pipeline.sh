@@ -9,6 +9,7 @@ fi
 INPUT_FILE=$1
 PARAMETER_FILE=$2
 
+source "$PARAMETER_FILE"
 if [[ ! -f "$INPUT_FILE" ]]; then
     echo "ERROR: Input FASTQ file $INPUT_FILE not found! Exiting..."
     exit 1
@@ -41,10 +42,8 @@ echo "Current shell: $SHELL"
 
 SECONDS=0
 # Create output directories
-MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR"
+MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/MINTmap/outputs/$OUTPUT_DIR"
 FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR"
-
-#mkdir -p "$MINT_OUTPUT_DIR"
 
 #perform quality check
 mkdir -p "$FASTQC_OUTPUT_DIR"
