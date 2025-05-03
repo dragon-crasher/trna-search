@@ -1,27 +1,39 @@
 #!/bin/bash
 
-#import list of adapters and parameters
-source adapters.txt
-source parameters.txt
-
 #check for args and set defaults
-if [ $# -lt 1 ]; then
-    echo "Usage: $0 <input_fastq_file> [output_dir]"
-    echo "Example: $0 sample1.fastq sample1_results"
+if [ $# -lt 2 ]; then
+    echo "Usage: $0 <input_fastq_file> <parameter_file> [output_dir]"
+    echo "Example: $0 sample1.fastq parameters.txt sample1_results"
     exit 1
 fi
 INPUT_FILE=$1
+PARAMETER_FILE=$2
+
 if [[ ! -f "$INPUT_FILE" ]]; then
     echo "ERROR: Input FASTQ file $INPUT_FILE not found! Exiting..."
     exit 1
 fi
 
-# Set output directory, use second argument if provided, otherwise use filename
-if [ $# -ge 2 ]; then
-    OUTPUT_DIR=$2
+if [[ ! -f "$PARAMETER_FILE" ]]; then
+    echo "ERROR: Parameter file $PARAMETER_FILE not found! Exiting..."
+    exit 1
+fi
+
+if [[ ! -f "adapters.txt" ]]; then
+    echo "ERROR: adapters.txt file not found! Exiting..."
+    exit 1
+fi
+
+# Set output directory, use third argument if provided, otherwise use filename
+if [ $# -ge 3 ]; then
+    OUTPUT_DIR=$3
 else
     OUTPUT_DIR=$(basename "$1" .fastq)
 fi
+
+#import list of adapters and parameters
+source adapters.txt
+source "$PARAMETER_FILE"
 
 echo "Processing file: $INPUT_FILE"
 echo "Output directory: $OUTPUT_DIR"
