@@ -60,7 +60,7 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     echo "Completed download and conversion for $ACCESSION" | tee -a "$LOG_FILE"
 
     echo "Starting tsRNA analysis pipeline for $ACCESSION..." | tee -a "$LOG_FILE"
-    cd /mnt/d/bioinformatics/RNAseq_pipeline/script
+    cd $MAINWORKDIR/RNAseq_pipeline/script
 
     FASTQ_FILES=("$FASTQ_DIR/$ACCESSION"/*.fastq)
     if [[ ${#FASTQ_FILES[@]} -eq 0 ]]; then
