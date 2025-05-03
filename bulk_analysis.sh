@@ -22,7 +22,7 @@ if [[ ! -f "$ACCESSION_FILE" ]]; then
     exit 1
 fi
 
-WORK_DIR="/mnt/d/bioinformatics/SRA/tmp"
+WORK_DIR="$MAINWORKDIR/SRA/tmp"
 SRA_DIR="$WORK_DIR/sra"
 FASTQ_DIR="$WORK_DIR/fastq"
 mkdir -p "$SRA_DIR" "$FASTQ_DIR"

@@ -41,8 +41,8 @@ echo "Current shell: $SHELL"
 
 SECONDS=0
 # Create output directories
-MINT_OUTPUT_DIR="/mnt/d/bioinformatics/MINT/outputs/$OUTPUT_DIR"
-FASTQC_OUTPUT_DIR="/mnt/d/bioinformatics/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR"
+MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR"
+FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR"
 
 #mkdir -p "$MINT_OUTPUT_DIR"
 
@@ -87,7 +87,7 @@ echo "Running FastQC on trimmed file..."
 fastqc "$TRIMMED_FILE" -o "$FASTQC_OUTPUT_DIR" -t 6
 
 echo "Running MINTmap..."
-cd /mnt/d/bioinformatics/MINT
+cd $MAINWORKDIR/MINT
 ./MINTmap.pl -f "$TRIMMED_FILE" -p "$MINT_OUTPUT_DIR"
 
 # Report runtime

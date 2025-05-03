@@ -39,7 +39,7 @@ fi
 source adapters.txt
 source "$PARAMETER_FILE"
 
-FASTQC_OUTPUT_DIR="/mnt/d/bioinformatics/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR"
+FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR"
 mkdir -p "$FASTQC_OUTPUT_DIR"
 
 echo "Running FastQC on raw files..."
@@ -63,11 +63,11 @@ fastqc trimmed_R1.fastq trimmed_R2.fastq -o "$FASTQC_OUTPUT_DIR" -t 6
 
 # For MINTmap, check if paired-end supported; if not, process trimmed_R1.fastq or both separately
 # Example (if single-end only):
-MINT_OUTPUT_DIR="/mnt/d/bioinformatics/MINT/outputs/$OUTPUT_DIR"
+MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR"
 mkdir -p "$MINT_OUTPUT_DIR"
 
 echo "Running MINTmap on trimmed_R1.fastq..."
-cd /mnt/d/bioinformatics/MINT
+cd $MAINWORKDIR/MINT
 ./MINTmap.pl -f trimmed_R1.fastq -p "$MINT_OUTPUT_DIR"
 
 # Report runtime etc.
