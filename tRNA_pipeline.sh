@@ -42,7 +42,7 @@ echo "Current shell: $SHELL"
 
 SECONDS=0
 # Create output directories
-MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/MINTmap/outputs/$OUTPUT_DIR"
+MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR"
 FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR"
 
 #perform quality check

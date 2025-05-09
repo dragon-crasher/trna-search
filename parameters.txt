@@ -3,5 +3,6 @@ ADAPTER_LIST="Truseq"
 MINLEN=12
 MAXLEN=50
 MIN_QUALITY=25
-MAINWORKDIR=/Users/bhavanayadavk/bioinformatics
+MAINWORKDIR=/mnt/d/bioinformatics
+output_path=/mnt/d/bioinformatics/RNAseq_pipeline/diffexp/
 

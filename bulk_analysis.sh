@@ -22,7 +22,7 @@ if [[ ! -f "$ACCESSION_FILE" ]]; then
 fi
 
 
-WORK_DIR="$MAINWORKDIR"
+WORK_DIR="$MAINWORKDIR/SRA"
 SRA_DIR="$WORK_DIR/sra"
 FASTQ_DIR="$WORK_DIR/fastq"
 

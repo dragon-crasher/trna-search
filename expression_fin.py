@@ -1,4 +1,6 @@
 import pandas as pd
+import sys
+import os
 
 def merge_csv_files(file1, file2, output_file):
     try:
@@ -22,9 +24,19 @@ def merge_csv_files(file1, file2, output_file):
 
 if __name__ == "__main__":
     # File paths
-    file1 = "/path/to/first_file.csv"
-    file2 = "/path/to/second_file.csv"
-    output_file = "/path/to/merged_file.csv"
+    if len(sys.argv) < 2:
+        print("Usage: python merge_csv.py [merged_csv] [tRF_csv] [sample_name]")
+        sys.exit(1)
     
+    file1 = sys.argv[1]
+    if not os.path.exists(file1):
+        print(f"File {file1} does not exist.")
+        sys.exit(1)
+    file2 = sys.argv[2]
+    if not os.path.exists(file2):
+        print(f"File {file2} does not exist.")
+        sys.exit(1)
+    output_file = sys.argv[3] + "output.csv" # Output file name
+
     # Merge the files
     merge_csv_files(file1, file2, output_file)
