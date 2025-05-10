@@ -32,7 +32,7 @@ mkdir -p "$SRA_DIR" "$FASTQ_DIR"
 LOG_FILE="$WORK_DIR/download_log.txt"
 echo "Starting SRA download and conversion at $(date)" > "$LOG_FILE"
 
-TMP_ACCESSION_FILE="$WORK_DIR/RNAseq_pipeline/scripts/trna-search/clean_accessions.txt"
+TMP_ACCESSION_FILE="$MAINWORKDIR/RNAseq_pipeline/script/trna-search/clean_accessions.txt"
 sed 's/[[:space:]]*$//' "$ACCESSION_FILE" > "$TMP_ACCESSION_FILE"
 
 ORIG_DIR=$(pwd)
@@ -63,7 +63,7 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
 
     echo "Starting tsRNA analysis pipeline for $ACCESSION..." | tee -a "$LOG_FILE"
 
-    cd $MAINWORKDIR/RNAseq_pipeline/scripts/trna-search
+    cd $MAINWORKDIR/RNAseq_pipeline/script/trna-search
 
 
     FASTQ_FILES=("$FASTQ_DIR/$ACCESSION"/*.fastq)
