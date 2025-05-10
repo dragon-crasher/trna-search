@@ -1,5 +1,5 @@
 # cutadapt parameters
-ADAPTER_LIST=Truseq 
+ADAPTER_LIST="QIAseq Illumina"
 MINLEN=12
 MAXLEN=50
 MIN_QUALITY=25

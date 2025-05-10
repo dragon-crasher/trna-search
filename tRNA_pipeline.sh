@@ -1,15 +1,17 @@
 #!/bin/bash
+set -euo pipefail
 
-#check for args and set defaults
+# Check for args and set defaults
 if [ $# -lt 2 ]; then
     echo "Usage: $0 <input_fastq_file> <parameter_file> [output_dir]"
     echo "Example: $0 sample1.fastq parameters.txt sample1_results"
     exit 1
 fi
+
 INPUT_FILE=$1
 PARAMETER_FILE=$2
 
-source "$PARAMETER_FILE"
+# Check if input files exist before sourcing
 if [[ ! -f "$INPUT_FILE" ]]; then
     echo "ERROR: Input FASTQ file $INPUT_FILE not found! Exiting..."
     exit 1
@@ -25,14 +27,17 @@ if [[ ! -f "adapters.txt" ]]; then
     exit 1
 fi
 
-# Set output directory, use third argument if provided, otherwise use filename
+# Source parameters file
+source "$PARAMETER_FILE"
+
+# Set output directory, use third argument if provided, otherwise use basename of input file
 if [ $# -ge 3 ]; then
     OUTPUT_DIR=$3
 else
-    OUTPUT_DIR=$(basename "$1" .fastq)
+    OUTPUT_DIR=$(basename "$INPUT_FILE" .fastq)
 fi
 
-#import list of adapters and parameters
+# Import list of adapters and parameters from adapters.txt
 while IFS='=' read -r name seq; do
     # Skip empty lines or lines starting with #
     [[ -z "$name" || "$name" == \#* ]] && continue
@@ -49,6 +54,7 @@ while IFS='=' read -r name seq; do
     declare "$name=$seq"
 done < adapters.txt
 
+# Source parameters again in case adapters.txt defines variables used in params
 source "$PARAMETER_FILE"
 
 echo "Processing file: $INPUT_FILE"
@@ -56,58 +62,57 @@ echo "Output directory: $OUTPUT_DIR"
 echo "Current shell: $SHELL"
 
 SECONDS=0
-# Create output directories
+
+# Define output directories
 MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR"
 FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR"
 
-#perform quality check
+# Create output directories if they don't exist
+mkdir -p "$MINT_OUTPUT_DIR"
 mkdir -p "$FASTQC_OUTPUT_DIR"
+mkdir -p "$OUTPUT_DIR"
+
+# Define accession base name and trimmed file name
+ACCESSION=$(basename "$INPUT_FILE" .fastq)
+ACCESSION_trimmed="${ACCESSION}_trimmed.fastq"
+
+# Perform quality check on input file
 echo "Running FastQC on input file..."
-first_header=$(zcat "$FILE" | head -1)  # use cat instead of zcat if not gzipped
+first_header=$(head -1 "$INPUT_FILE")
 
 if [[ "$first_header" =~ ^@.+:[0-9]+:[A-Za-z0-9]+:[0-9]+:[0-9]+:[0-9]+:[0-9]+ ]]; then
     echo "CASAVA format detected"
-    fastqc "$INPUT_FILE" -o "$OUTPUT_DIR" -t 6 --casava 
+    fastqc "$INPUT_FILE" -o "$FASTQC_OUTPUT_DIR" -t 16 --casava
 else
     echo "Not CASAVA format"
-    fastqc "$INPUT_FILE" -o "$OUTPUT_DIR" -t 6 
+    fastqc "$INPUT_FILE" -o "$FASTQC_OUTPUT_DIR" -t 16
 fi
 
-
-
-#frame the adapter args 
-ADAPTER_ARGS= ""
+# Frame the adapter args
+ADAPTER_ARGS=""
 for adapter_name in $ADAPTER_LIST; do
     adapter_seq="${!adapter_name}"
     ADAPTER_ARGS+=" -a $adapter_seq"
 done
 
-
-
-#running cutadapt to to remove adapters
+# Running cutadapt to remove adapters
 echo "Removing adapters with cutadapt..."
-if [[ ! -f "$INPUT_FILE" ]]; then
-    echo "ERROR: Input FASTQ file $INPUT_FILE not found! Exiting..."
-    exit 1
-fi
-echo "Current adapter: $ADAPTER_LIST"
-cutadapt $ADAPTER_ARGS -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -n 1 -O 5 --match-read-wildcards \
-    -o trimmed_reads.fastq input_reads.fastq
-
+cutadapt $ADAPTER_ARGS -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -n 1 -j 8 -O 5 --match-read-wildcards \
+    -o "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" "$INPUT_FILE"
 echo "Cutadapt finished running!"
 
 # Run FastQC on trimmed file
 echo "Running FastQC on trimmed file..."
-fastqc "$TRIMMED_FILE" -o "$FASTQC_OUTPUT_DIR" -t 6
+fastqc "$ACCESSION_trimmed" -o "$FASTQC_OUTPUT_DIR" -t 16
 
+# Run MINTmap
 echo "Running MINTmap..."
-cd $MAINWORKDIR/MINT
-./MINTmap.pl -f "$TRIMMED_FILE" -p "$MINT_OUTPUT_DIR"
+cd "$MAINWORKDIR/MINT"
+./MINTmap.pl -f "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" -p "$MINT_OUTPUT_DIR"
 
 # Report runtime
 duration=$SECONDS
-echo "Pipeline completed in $(($duration/60)) minutes and $(($duration % 60)) seconds."
+echo "Pipeline completed in $(($duration / 60)) minutes and $(($duration % 60)) seconds."
 echo "Results stored in:"
 echo "  FastQC: $FASTQC_OUTPUT_DIR"
 echo "  MINTmap: $MINT_OUTPUT_DIR"
-

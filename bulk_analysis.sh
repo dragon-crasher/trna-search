@@ -51,10 +51,10 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     fi
 
     echo "Converting $ACCESSION to FASTQ..." | tee -a "$LOG_FILE"
-    if ! fasterq-dump "$SRA_DIR/$ACCESSION.sra" \
+    if ! fasterq-dump "$SRA_DIR/$ACCESSION/$ACCESSION.sra" \
         --outdir "$FASTQ_DIR/$ACCESSION" \
         --temp "$FASTQ_DIR/$ACCESSION/tmp" \
-        --threads 4 \
+        --threads 16 \
         --force; then
         echo "ERROR: Failed to convert $ACCESSION, continuing..." | tee -a "$LOG_FILE"
     fi
@@ -63,7 +63,7 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
 
     echo "Starting tsRNA analysis pipeline for $ACCESSION..." | tee -a "$LOG_FILE"
 
-    cd $MAINWORKDIR/RNAseq_pipeline/script/trna-search
+    cd $MAINWORKDIR/RNAseq_pipeline/script/trna_search
 
 
     FASTQ_FILES=("$FASTQ_DIR/$ACCESSION"/*.fastq)
