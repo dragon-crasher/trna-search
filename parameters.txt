@@ -6,3 +6,4 @@ MIN_QUALITY=25
 MAINWORKDIR=/mnt/d/bioinformatics
 output_path=/mnt/d/bioinformatics/RNAseq_pipeline/diffexp/
 
+ 
