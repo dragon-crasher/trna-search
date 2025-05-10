@@ -33,7 +33,22 @@ else
 fi
 
 #import list of adapters and parameters
-source adapters.txt
+while IFS='=' read -r name seq; do
+    # Skip empty lines or lines starting with #
+    [[ -z "$name" || "$name" == \#* ]] && continue
+
+    # Trim whitespace from name and seq
+    name=$(echo "$name" | xargs)
+    seq=$(echo "$seq" | xargs)
+
+    # Remove surrounding quotes from seq if present
+    seq=${seq#\"}
+    seq=${seq%\"}
+
+    # Declare variable dynamically
+    declare "$name=$seq"
+done < adapters.txt
+
 source "$PARAMETER_FILE"
 
 echo "Processing file: $INPUT_FILE"
