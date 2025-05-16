@@ -38,6 +38,9 @@ sed 's/[[:space:]]*$//' "$ACCESSION_FILE" > "$TMP_ACCESSION_FILE"
 ORIG_DIR=$(pwd)
 
 while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
+    
+    SECONDS = 0
+
     [[ -z "$ACCESSION" || "$ACCESSION" == \#* ]] && continue
     ACCESSION=$(echo "$ACCESSION" | xargs)
 
@@ -54,7 +57,7 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     if ! fasterq-dump "$SRA_DIR/$ACCESSION/$ACCESSION.sra" \
         --outdir "$FASTQ_DIR/$ACCESSION" \
         --temp "$FASTQ_DIR/$ACCESSION/tmp" \
-        --threads 16 \
+        --threads 12 \
         --force; then
         echo "ERROR: Failed to convert $ACCESSION, continuing..." | tee -a "$LOG_FILE"
     fi
@@ -84,6 +87,9 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
         echo "ERROR: Unexpected number of FASTQ files for $ACCESSION" | tee -a "$LOG_FILE"
     fi
 
+    duration=$SECONDS
+    echo "Pipeline for $ACCESSION completed in $(($duration / 60)) minutes and $(($duration % 60)) seconds."
+    
     cd "$ORIG_DIR"
 done < "$TMP_ACCESSION_FILE"
 

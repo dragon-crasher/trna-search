@@ -61,16 +61,15 @@ echo "Processing file: $INPUT_FILE"
 echo "Output directory: $OUTPUT_DIR"
 echo "Current shell: $SHELL"
 
-SECONDS=0
 
 # Define output directories
-MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR"
-FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR"
+MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR/"
+FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR/"
 
 # Create output directories if they don't exist
 mkdir -p "$MINT_OUTPUT_DIR"
 mkdir -p "$FASTQC_OUTPUT_DIR"
-mkdir -p "$OUTPUT_DIR"
+
 
 # Define accession base name and trimmed file name
 ACCESSION=$(basename "$INPUT_FILE" .fastq)
@@ -103,7 +102,7 @@ echo "Cutadapt finished running!"
 
 # Run FastQC on trimmed file
 echo "Running FastQC on trimmed file..."
-fastqc "$ACCESSION_trimmed" -o "$FASTQC_OUTPUT_DIR" -t 16
+fastqc "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" -o "$FASTQC_OUTPUT_DIR" -t 16
 
 # Run MINTmap
 echo "Running MINTmap..."
@@ -111,8 +110,7 @@ cd "$MAINWORKDIR/MINT"
 ./MINTmap.pl -f "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" -p "$MINT_OUTPUT_DIR"
 
 # Report runtime
-duration=$SECONDS
-echo "Pipeline completed in $(($duration / 60)) minutes and $(($duration % 60)) seconds."
+
 echo "Results stored in:"
 echo "  FastQC: $FASTQC_OUTPUT_DIR"
 echo "  MINTmap: $MINT_OUTPUT_DIR"
