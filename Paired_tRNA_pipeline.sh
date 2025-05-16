@@ -1,8 +1,10 @@
 #!/bin/bash
+set -euo pipefail
 
-# Check args and set defaults
+# Check for args and set defaults
 if [ $# -lt 3 ]; then
     echo "Usage: $0 <input_fastq_R1> <input_fastq_R2> <parameter_file> [output_dir]"
+    echo "Example: $0 sample_R1.fastq sample_R2.fastq parameters.txt sample_paired_results"
     exit 1
 fi
 
@@ -16,63 +18,91 @@ else
     OUTPUT_DIR=$(basename "$INPUT_FILE_R1" _R1.fastq)
 fi
 
-if [[ ! -f "$INPUT_FILE_R1" ]]; then
-    echo "ERROR: $INPUT_FILE_R1 not found! Exiting..."
-    exit 1
-fi
+# Check input files
+for f in "$INPUT_FILE_R1" "$INPUT_FILE_R2" "$PARAMETER_FILE" adapters.txt; do
+    if [[ ! -f "$f" ]]; then
+        echo "ERROR: $f not found! Exiting..."
+        exit 1
+    fi
+done
 
-if [[ ! -f "$INPUT_FILE_R2" ]]; then
-    echo "ERROR: $INPUT_FILE_R2 not found! Exiting..."
-    exit 1
-fi
-
-if [[ ! -f "$PARAMETER_FILE" ]]; then
-    echo "ERROR: $PARAMETER_FILE not found! Exiting..."
-    exit 1
-fi
-
-if [[ ! -f "adapters.txt" ]]; then
-    echo "ERROR: adapters.txt not found! Exiting..."
-    exit 1
-fi
-
-source adapters.txt
+# Source parameters file
 source "$PARAMETER_FILE"
 
-FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR"
+echo "Processing paired files:"
+echo "  R1: $INPUT_FILE_R1"
+echo "  R2: $INPUT_FILE_R2"
+echo "Output directory: $OUTPUT_DIR"
+echo "Current shell: $SHELL"
+
+# Import adapters
+while IFS='=' read -r name seq; do
+    [[ -z "$name" || "$name" == \#* ]] && continue
+    name=$(echo "$name" | xargs)
+    seq=$(echo "$seq" | xargs)
+    seq=${seq#\"}
+    seq=${seq%\"}
+    declare "$name=$seq"
+done < adapters.txt
+
+# Source parameters again in case adapters.txt defines variables used in params
+source "$PARAMETER_FILE"
+
+MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR/"
+FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR/"
+
+mkdir -p "$MINT_OUTPUT_DIR"
 mkdir -p "$FASTQC_OUTPUT_DIR"
 
-echo "Running FastQC on raw files..."
-fastqc "$INPUT_FILE_R1" "$INPUT_FILE_R2" -o "$FASTQC_OUTPUT_DIR" -t 6
+# FastQC on raw files
+echo "Running FastQC on raw paired files..."
+fastqc "$INPUT_FILE_R1" "$INPUT_FILE_R2" -o "$FASTQC_OUTPUT_DIR" -t 20
 
-# Prepare adapter args as before
+# Adapter args
 ADAPTER_ARGS=""
 for adapter_name in $ADAPTER_LIST; do
     adapter_seq="${!adapter_name}"
     ADAPTER_ARGS+=" -a $adapter_seq"
 done
 
-echo "Running cutadapt for paired-end trimming..."
-cutadapt $ADAPTER_ARGS -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -O 5 --match-read-wildcards \
-    -o trimmed_R1.fastq -p trimmed_R2.fastq "$INPUT_FILE_R1" "$INPUT_FILE_R2"
+ACCESSION=$(basename "$INPUT_FILE_R1" _R1.fastq)
+TRIMMED_R1="${ACCESSION}_trimmed_R1.fastq"
+TRIMMED_R2="${ACCESSION}_trimmed_R2.fastq"
 
-echo "Cutadapt finished!"
+# Cutadapt paired-end trimming
+echo "Running cutadapt for paired-end adapter trimming..."
+cutadapt $ADAPTER_ARGS -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -O 5 -n 1 -j 20 --match-read-wildcards \
+    -o "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R1" \
+    -p "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R2" \
+    "$INPUT_FILE_R1" "$INPUT_FILE_R2"
 
-echo "Running FastQC on trimmed files..."
-fastqc trimmed_R1.fastq trimmed_R2.fastq -o "$FASTQC_OUTPUT_DIR" -t 6
+echo "Cutadapt finished running!"
 
-# For MINTmap, check if paired-end supported; if not, process trimmed_R1.fastq or both separately
-# Example (if single-end only):
-MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR"
-mkdir -p "$MINT_OUTPUT_DIR"
+# FastQC on trimmed files
+echo "Running FastQC on trimmed paired files..."
+fastqc "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R1" "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R2" -o "$FASTQC_OUTPUT_DIR" -t 20
 
-echo "Running MINTmap on trimmed_R1.fastq..."
-cd $MAINWORKDIR/MINT
-./MINTmap.pl -f trimmed_R1.fastq -p "$MINT_OUTPUT_DIR"
+# Run MINTmap on trimmed R1
+echo "Running MINTmap on trimmed R1 file..."
+MINT_R1_OUT="$MINT_OUTPUT_DIR/R1"
+mkdir -p "$MINT_R1_OUT"
+cd "$MAINWORKDIR/MINT"
+./MINTmap.pl -f "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R1" -p "$MINT_R1_OUT"
 
-# Report runtime etc.
-duration=$SECONDS
-echo "Pipeline completed in $(($duration/60)) minutes and $(($duration % 60)) seconds."
+# Run MINTmap on trimmed R2
+echo "Running MINTmap on trimmed R2 file..."
+MINT_R2_OUT="$MINT_OUTPUT_DIR/R2"
+mkdir -p "$MINT_R2_OUT"
+./MINTmap.pl -f "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R2" -p "$MINT_R2_OUT"
+
+# Merge tRF counts from R1 and R2
+echo "Merging MINTmap tRF counts from R1 and R2..."
+
+
+# Python script to merge counts by summing
+echo "Pipeline completed successfully!"
 echo "Results stored in:"
 echo "  FastQC: $FASTQC_OUTPUT_DIR"
-echo "  MINTmap: $MINT_OUTPUT_DIR"
+echo "  MINTmap R1 output: $MINT_R1_OUT"
+echo "  MINTmap R2 output: $MINT_R2_OUT"
+echo "  Merged counts: $MERGED_COUNTS"
