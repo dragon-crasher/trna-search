@@ -3,13 +3,14 @@ set -euo pipefail
 
 # Check for args and set defaults
 if [ $# -lt 2 ]; then
-    echo "Usage: $0 <input_fastq_file> <parameter_file> [output_dir]"
+    echo "Usage: $0 <input_fastq_file> <parameter_file> [output_dir] <run_cutadapt: 1|0>"
     echo "Example: $0 sample1.fastq parameters.txt sample1_results"
     exit 1
 fi
 
 INPUT_FILE=$1
 PARAMETER_FILE=$2
+run_cutadapt=${4:-1}
 
 # Check if input files exist before sourcing
 if [[ ! -f "$INPUT_FILE" ]]; then
@@ -63,7 +64,7 @@ echo "Current shell: $SHELL"
 
 
 # Define output directories
-MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR/"
+MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR"
 FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR/"
 
 # Create output directories if they don't exist
@@ -87,27 +88,36 @@ else
     fastqc "$INPUT_FILE" -o "$FASTQC_OUTPUT_DIR" -t 16
 fi
 
-# Frame the adapter args
-ADAPTER_ARGS=""
-for adapter_name in $ADAPTER_LIST; do
-    adapter_seq="${!adapter_name}"
-    ADAPTER_ARGS+=" -a $adapter_seq"
-done
+if ((run_cutadapt == 1)); then
+    echo "Running cutadapt..."
+    # Frame the adapter args
+    ADAPTER_ARGS=""
+    for adapter_name in $ADAPTER_LIST; do
+        adapter_seq="${!adapter_name}"
+        ADAPTER_ARGS+=" -a $adapter_seq"
+    done
 
-# Running cutadapt to remove adapters
-echo "Removing adapters with cutadapt..."
-cutadapt $ADAPTER_ARGS -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -n 1 -j 8 -O 5 --match-read-wildcards \
-    -o "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" "$INPUT_FILE"
-echo "Cutadapt finished running!"
+    # Running cutadapt to remove adapters
+    echo "Removing adapters with cutadapt..."
+    cutadapt $ADAPTER_ARGS -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -n 1 -j 8 -O 5 --match-read-wildcards \
+        -o "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" "$INPUT_FILE"
+    echo "Cutadapt finished running!"
 
-# Run FastQC on trimmed file
-echo "Running FastQC on trimmed file..."
-fastqc "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" -o "$FASTQC_OUTPUT_DIR" -t 16
+    # Run FastQC on trimmed file
+    echo "Running FastQC on trimmed file..."
+    fastqc "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" -o "$FASTQC_OUTPUT_DIR" -t 16
+    RUNNING=$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed
+else
+    echo "Skipping cutadapt step..."
+    RUNNING=$INPUT_FILE
+fi
+
+
 
 # Run MINTmap
 echo "Running MINTmap..."
 cd "$MAINWORKDIR/MINT"
-./MINTmap.pl -f "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" -p "$MINT_OUTPUT_DIR"
+./MINTmap.pl -f "$RUNNING" -p "$MINT_OUTPUT_DIR"
 
 # Report runtime
 

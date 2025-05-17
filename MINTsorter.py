@@ -10,13 +10,13 @@ def rename_and_move_counts_files(parent_dir):
             continue
         folder_name = os.path.basename(root)
         for file in files:
-            if "counts" in file:
+            if "expression" in file:
                 old_file_path = os.path.join(root, file)
                 # Determine the new name based on file content
                 if "exclusive" in file:
-                    new_file_name = f"exclusive_{folder_name}"
+                    new_file_name = f"e_{folder_name}"
                 elif "ambiguous" in file:
-                    new_file_name = f"ambiguous_{folder_name}"
+                    new_file_name = f"a_{folder_name}"
                 else:
                     continue  # Skip files that don't match either
                 # Preserve the file extension
@@ -36,7 +36,7 @@ def rename_and_move_counts_files(parent_dir):
                 print(f"Moved: {new_file_path} -> {final_path}")
 
 # Example usage:
-#rename_and_move_counts_files("/mnt/d/bioinformatics/MINT/outputs/")
+rename_and_move_counts_files("/mnt/d/bioinformatics/MINT/outputs/")
 
 
 def move_selected_files_to_results(parent_dir, results_dir):
@@ -52,20 +52,21 @@ def move_selected_files_to_results(parent_dir, results_dir):
             # Check if the 'selected' subfolder exists
             if os.path.isdir(selected_path):
                 for filename in os.listdir(selected_path):
-                    src_file = os.path.join(selected_path, filename)
-                    dst_file = os.path.join(results_dir, filename)
-                    # Only move files (not subdirectories)
-                    if os.path.isfile(src_file):
-                        print(f"Moving {src_file} -> {dst_file}")
-                        shutil.move(src_file, dst_file)
+                    if filename.endswith('.txt'):
+                        src_file = os.path.join(selected_path, filename)
+                        dst_file = os.path.join(results_dir, filename)
+                        # Only move files (not subdirectories)
+                        if os.path.isfile(src_file):
+                            print(f"Moving {src_file} -> {dst_file}")
+                            shutil.move(src_file, dst_file)
 
 # Usage
-"""
+
 move_selected_files_to_results(
     "/mnt/d/bioinformatics/MINT/outputs",
-    "/mnt/d/bioinformatics/MINT/outputs/results"
+    "/mnt/d/bioinformatics/MINT/outputs/selected"
 )
-"""
+
 
 
 def standardize_filenames(folder_path):
@@ -93,7 +94,7 @@ def standardize_filenames(folder_path):
         os.rename(src, dst)
 
 # Usage:
-standardize_filenames("/mnt/d/bioinformatics/MINT/outputs/results/")
+#rename_and_move_counts_files("/mnt/d/bioinformatics/MINT/outputs/")
 
 
 

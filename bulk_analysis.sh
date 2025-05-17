@@ -1,14 +1,31 @@
 #!/bin/bash
 
+PARAMETERS_FILE=""
+ACCESSION_FILE=""
+CUTADAPT_RUN=1
+
+while getopts ":p:d:a:" opt; do
+  case $opt in
+    p) PARAMETERS_FILE="$OPTARG" ;;
+    d) ACCESSION_FILE="$OPTARG" ;;
+    a) CUTADAPT_RUN="$OPTARG" ;;
+    \?) echo "Invalid option -$OPTARG" >&2; exit 1 ;;
+    :) echo "Option -$OPTARG requires an argument." >&2; exit 1 ;;
+  esac
+done
+
 # Check for required arguments
-if [ $# -lt 2 ]; then
-    echo "Usage: $0 <parameters_file> <accession_file>"
-    echo "Example: $0 parameters.txt run_numbers.txt"
-    exit 1
+if [[ -z "$PARAMETERS_FILE" || -z "$ACCESSION_FILE" || -z "$CUTADAPT_RUN" ]]; then
+  echo "Usage: $0 -p <parameters.txt> -d <Run_numbers.txt> -a <run cutadapt? :1|0>
+  "
+  exit 1
 fi
 
-PARAMETERS_FILE=$1
-ACCESSION_FILE=$2
+echo "Parameters file: $PARAMETERS_FILE"
+echo "Accession File: $ACCESSION_FILE"
+echo "Run Cutadapt: $CUTADAPT_RUN"
+
+
 source "$PARAMETERS_FILE"
 # Validate input files
 if [[ ! -f "$PARAMETERS_FILE" ]]; then
@@ -39,7 +56,7 @@ ORIG_DIR=$(pwd)
 
 while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     
-    SECONDS = 0
+    SECONDS=0
 
     [[ -z "$ACCESSION" || "$ACCESSION" == \#* ]] && continue
     ACCESSION=$(echo "$ACCESSION" | xargs)
@@ -77,15 +94,16 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     fi
 
     if [[ ${#FASTQ_FILES[@]} -eq 1 ]]; then
-        ./tRNA_pipeline.sh "${FASTQ_FILES[0]}" "$PARAMETERS_FILE" "$ACCESSION" || \
-            echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
+        ./tRNA_pipeline.sh "${FASTQ_FILES[0]}" "$PARAMETERS_FILE" "$ACCESSION" "$CUTADAPT_RUN" || \
+        echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
     elif [[ ${#FASTQ_FILES[@]} -ge 2 ]]; then
         echo "Found paired-end FASTQ files: ${FASTQ_FILES[0]}, ${FASTQ_FILES[1]}" | tee -a "$LOG_FILE"
-        ./Paired_tRNA_pipeline.sh "${FASTQ_FILES[0]}" "${FASTQ_FILES[1]}" "$PARAMETERS_FILE" "$ACCESSION" || \
-            echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
+        ./Paired_tRNA_pipeline.sh "${FASTQ_FILES[0]}" "${FASTQ_FILES[1]}" "$PARAMETERS_FILE" "$ACCESSION" "$CUTADAPT_RUN" || \
+        echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
     else
         echo "ERROR: Unexpected number of FASTQ files for $ACCESSION" | tee -a "$LOG_FILE"
     fi
+
 
     duration=$SECONDS
     echo "Pipeline for $ACCESSION completed in $(($duration / 60)) minutes and $(($duration % 60)) seconds."
