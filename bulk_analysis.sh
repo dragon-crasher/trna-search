@@ -98,7 +98,7 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
         echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
     elif [[ ${#FASTQ_FILES[@]} -ge 2 ]]; then
         echo "Found paired-end FASTQ files: ${FASTQ_FILES[0]}, ${FASTQ_FILES[1]}" | tee -a "$LOG_FILE"
-        ./Paired_tRNA_pipeline.sh "${FASTQ_FILES[0]}" "${FASTQ_FILES[1]}" "$PARAMETERS_FILE" "$ACCESSION" "$CUTADAPT_RUN" || \
+        ./Paired_tRNA_pipeline.sh "${FASTQ_FILES[0]}" "${FASTQ_FILES[1]}" "$PARAMETERS_FILE" "$ACCESSION" $CUTADAPT_RUN || \
         echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
     else
         echo "ERROR: Unexpected number of FASTQ files for $ACCESSION" | tee -a "$LOG_FILE"

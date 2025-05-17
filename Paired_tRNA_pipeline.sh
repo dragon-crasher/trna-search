@@ -3,20 +3,20 @@ set -euo pipefail
 
 # Check for args and set defaults
 if [ $# -lt 4 ]; then
-    echo "Usage: $0 <input_fastq_R1> <input_fastq_R2> <parameter_file> [output_dir] <run_cutadapt>"
-    echo "Example: $0 sample_R1.fastq sample_R2.fastq parameters.txt 1 sample_paired_results"
+    echo "Usage: $0 <input_fastq_R1> <input_fastq_R2> <parameter_file> <output_dir> <run_cutadapt>"
+    echo "Example: $0 sample_R1.fastq sample_R2.fastq parameters.txt sample_paired_results 1"
     exit 1
 fi
 
 INPUT_FILE_R1=$1
 INPUT_FILE_R2=$2
 PARAMETER_FILE=$3
-RUN_CUTADAPT=$4
+RUN_CUTADAPT=$5
 
 if [ $# -ge 5 ]; then
-    OUTPUT_DIR=$5
+    OUTPUT_DIR=$4
 else
-    OUTPUT_DIR=$(basename "$INPUT_FILE_R1" _R1.fastq)
+    OUTPUT_DIR=$(basename "$INPUT_FILE_R1" _1.fastq)
 fi
 
 # Check input files
@@ -46,13 +46,9 @@ while IFS='=' read -r name seq; do
     declare "$name=$seq"
 done < adapters.txt
 
-# Source parameters again in case adapters.txt defines variables used in params
-source "$PARAMETER_FILE"
-
 MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR"
 FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR/"
 
-mkdir -p "$MINT_OUTPUT_DIR"
 mkdir -p "$FASTQC_OUTPUT_DIR"
 
 # FastQC on raw files
@@ -60,21 +56,33 @@ echo "Running FastQC on raw paired files..."
 fastqc "$INPUT_FILE_R1" "$INPUT_FILE_R2" -o "$FASTQC_OUTPUT_DIR" -t $cputhreads
 
 # Adapter args
-ADAPTER_ARGS=""
 for adapter_name in $ADAPTER_LIST; do
+    if [[ -z "${!adapter_name:-}" ]]; then
+        echo "ERROR: Adapter sequence for '$adapter_name' is not set. Check adapters.txt."
+        exit 1
+    fi
     adapter_seq="${!adapter_name}"
-    ADAPTER_ARGS+=" -a $adapter_seq"
+    ADAPTER_ARGS1+=" -a $adapter_seq"
 done
 
-ACCESSION=$(basename "$INPUT_FILE_R1" _R1.fastq)
+for adapter_name in $ADAPTER_LIST2; do
+    if [[ -z "${!adapter_name:-}" ]]; then
+        echo "ERROR: Adapter sequence for '$adapter_name' is not set. Check adapters.txt."
+        exit 1
+    fi
+    adapter_seq="${!adapter_name}"
+    ADAPTER_ARGS2+=" -A $adapter_seq"
+done
+
+ACCESSION=$(basename "$INPUT_FILE_R1" _1.fastq)
 TRIMMED_R1="${ACCESSION}_trimmed_R1.fastq"
 TRIMMED_R2="${ACCESSION}_trimmed_R2.fastq"
 
-if [[ "$RUN_CUTADAPT" -eq 1 ]]; then
+if (( RUN_CUTADAPT == 1)); then
     echo "Running cutadapt for paired-end adapter trimming..."
     mkdir -p "$MAINWORKDIR/SRA/fastq/$ACCESSION"
 
-    cutadapt $ADAPTER_ARGS -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -O 5 -n 1 -j $cpucores --match-read-wildcards \
+    cutadapt $ADAPTER_ARGS1 $ADAPTER_ARGS2  -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -O 5 -n 1 -j $cpucores --match-read-wildcards \
         -o "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R1" \
         -p "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R2" \
         "$INPUT_FILE_R1" "$INPUT_FILE_R2"
