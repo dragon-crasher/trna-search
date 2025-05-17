@@ -57,7 +57,7 @@ mkdir -p "$FASTQC_OUTPUT_DIR"
 
 # FastQC on raw files
 echo "Running FastQC on raw paired files..."
-fastqc "$INPUT_FILE_R1" "$INPUT_FILE_R2" -o "$FASTQC_OUTPUT_DIR" -t 16
+fastqc "$INPUT_FILE_R1" "$INPUT_FILE_R2" -o "$FASTQC_OUTPUT_DIR" -t $cputhreads
 
 # Adapter args
 ADAPTER_ARGS=""
@@ -74,7 +74,7 @@ if [[ "$RUN_CUTADAPT" -eq 1 ]]; then
     echo "Running cutadapt for paired-end adapter trimming..."
     mkdir -p "$MAINWORKDIR/SRA/fastq/$ACCESSION"
 
-    cutadapt $ADAPTER_ARGS -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -O 5 -n 1 -j 16 --match-read-wildcards \
+    cutadapt $ADAPTER_ARGS -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -O 5 -n 1 -j $cpucores --match-read-wildcards \
         -o "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R1" \
         -p "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R2" \
         "$INPUT_FILE_R1" "$INPUT_FILE_R2"
@@ -82,7 +82,7 @@ if [[ "$RUN_CUTADAPT" -eq 1 ]]; then
     echo "Cutadapt finished running!"
 
     echo "Running FastQC on trimmed paired files..."
-    fastqc "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R1" "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R2" -o "$FASTQC_OUTPUT_DIR" -t 20
+    fastqc "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R1" "$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R2" -o "$FASTQC_OUTPUT_DIR" -t $cputhreads
 
     RUNNING_R1="$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R1"
     RUNNING_R2="$MAINWORKDIR/SRA/fastq/$ACCESSION/$TRIMMED_R2"
@@ -95,15 +95,14 @@ fi
 # Run MINTmap on the files assigned to RUNNING_R1 and RUNNING_R2
 echo "Running MINTmap on R1 file..."
 MINT_R1_OUT="$MINT_OUTPUT_DIR-R1"
-mkdir -p "$MINT_R1_OUT"
-cd "$MAINWORKDIR/MINT"
-./MINTmap.pl -f "$RUNNING_R1" -p "$MINT_R1_OUT"
 
+cd "$MAINWORKDIR/MINT/outputs"
+#./MINTmap.pl -f "$RUNNING_R1" -p "$MINT_R1_OUT"
+conda run -n mintmap38 MINTmap -p $OUTPUT_DIR "$RUNNING_R1" 
 echo "Running MINTmap on R2 file..."
 MINT_R2_OUT="$MINT_OUTPUT_DIR-R2"
-mkdir -p "$MINT_R2_OUT"
-./MINTmap.pl -f "$RUNNING_R2" -p "$MINT_R2_OUT"
-
+#./MINTmap.pl -f "$RUNNING_R2" -p "$MINT_R2_OUT"
+conda run -n mintmap38 MINTmap -p $OUTPUT_DIR "$RUNNING_R2"
 
 
 echo "Pipeline completed successfully!"

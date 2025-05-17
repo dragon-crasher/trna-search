@@ -3,6 +3,8 @@ ADAPTER_LIST="QIAseq Illumina"
 MINLEN=12
 MAXLEN=50
 MIN_QUALITY=25
+cputhreads=16
+cpucores=8
 MAINWORKDIR=/mnt/d/bioinformatics
 output_path=/mnt/d/bioinformatics/RNAseq_pipeline/diffexp/
 

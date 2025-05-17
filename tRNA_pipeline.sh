@@ -82,10 +82,10 @@ first_header=$(head -1 "$INPUT_FILE")
 
 if [[ "$first_header" =~ ^@.+:[0-9]+:[A-Za-z0-9]+:[0-9]+:[0-9]+:[0-9]+:[0-9]+ ]]; then
     echo "CASAVA format detected"
-    fastqc "$INPUT_FILE" -o "$FASTQC_OUTPUT_DIR" -t 16 --casava
+    fastqc "$INPUT_FILE" -o "$FASTQC_OUTPUT_DIR" -t $cputhreads --casava
 else
     echo "Not CASAVA format"
-    fastqc "$INPUT_FILE" -o "$FASTQC_OUTPUT_DIR" -t 16
+    fastqc "$INPUT_FILE" -o "$FASTQC_OUTPUT_DIR" -t $cputhreads
 fi
 
 if ((run_cutadapt == 1)); then
@@ -99,13 +99,13 @@ if ((run_cutadapt == 1)); then
 
     # Running cutadapt to remove adapters
     echo "Removing adapters with cutadapt..."
-    cutadapt $ADAPTER_ARGS -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -n 1 -j 8 -O 5 --match-read-wildcards \
+    cutadapt $ADAPTER_ARGS -m "$MINLEN" -M "$MAXLEN" -q "$MIN_QUALITY" -n 1 -j $cpucores -O 5 --match-read-wildcards \
         -o "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" "$INPUT_FILE"
     echo "Cutadapt finished running!"
 
     # Run FastQC on trimmed file
     echo "Running FastQC on trimmed file..."
-    fastqc "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" -o "$FASTQC_OUTPUT_DIR" -t 16
+    fastqc "$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed" -o "$FASTQC_OUTPUT_DIR" -t $cputhreads
     RUNNING=$MAINWORKDIR/SRA/fastq/$ACCESSION/$ACCESSION_trimmed
 else
     echo "Skipping cutadapt step..."
@@ -117,8 +117,13 @@ fi
 # Run MINTmap
 echo "Running MINTmap..."
 cd "$MAINWORKDIR/MINT"
-./MINTmap.pl -f "$RUNNING" -p "$MINT_OUTPUT_DIR"
 
+#version 1 of MINTmap
+#./MINTmap.pl -f "$RUNNING" -p "$MINT_OUTPUT_DIR"
+
+#version 2 of MINTmap
+cd "$MAINWORKDIR/MINT/outputs/"
+conda run -n mintmap38 MINTmap -p $OUTPUT_DIR "$RUNNING" 
 # Report runtime
 
 echo "Results stored in:"

@@ -74,7 +74,7 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     if ! fasterq-dump "$SRA_DIR/$ACCESSION/$ACCESSION.sra" \
         --outdir "$FASTQ_DIR/$ACCESSION" \
         --temp "$FASTQ_DIR/$ACCESSION/tmp" \
-        --threads 12 \
+        --threads $cputhreads \
         --force; then
         echo "ERROR: Failed to convert $ACCESSION, continuing..." | tee -a "$LOG_FILE"
     fi
