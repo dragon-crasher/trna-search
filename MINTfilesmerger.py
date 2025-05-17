@@ -18,7 +18,7 @@ def merge_mint_files(folder_path, set_name):
         file_path = os.path.join(folder_path, file)
         df = pd.read_csv(file_path, sep='\t')
         # Select relevant columns
-        filtered_df = df[['MINTbase Unique ID', 'tRF sequence', 'tRF type(s)', 'Unnormalized read counts']]
+        filtered_df = df[['License Plate', 'tRF sequence', 'tRF type(s)', 'Unnormalized read counts']]
         # Rename the last column to the sample name
         sample_name = file.split('/')[-1].split('.')[0]
         filtered_df = filtered_df.rename(columns={'Unnormalized read counts': sample_name})
@@ -26,7 +26,7 @@ def merge_mint_files(folder_path, set_name):
 
     # Merge all DataFrames on the first three columns
     
-    merged_df = reduce(lambda left, right: pd.merge(left, right, on=['MINTbase Unique ID', 'tRF sequence', 'tRF type(s)'], how='outer'), dataframes)
+    merged_df = reduce(lambda left, right: pd.merge(left, right, on=['License Plate', 'tRF sequence', 'tRF type(s)'], how='outer'), dataframes)
 
     output_file = os.path.join('/mnt/d/bioinformatics/RNAseq_pipeline/data/', f'{set_name}merged_mint_files.csv')
 

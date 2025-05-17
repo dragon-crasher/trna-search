@@ -108,6 +108,8 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     duration=$SECONDS
     echo "Pipeline for $ACCESSION completed in $(($duration / 60)) minutes and $(($duration % 60)) seconds."
     
+    python3 MINTsorter2.py "$PROJECT_NAME"
+
     cd "$ORIG_DIR"
 done < "$TMP_ACCESSION_FILE"
 
