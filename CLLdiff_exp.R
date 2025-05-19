@@ -1,16 +1,17 @@
 library(DESeq2)
 
 # Load count data
-countData <- read.csv("/mnt/d/bioinformatics/RNAseq_pipeline/diffexp/merged_tRF_data.csv", check.names = FALSE)
+countData <- read.csv("/mnt/d/bioinformatics/RNAseq_pipeline/data/CLLmerged_mint_files.csv", check.names = FALSE)
 
 # Remove the first unnamed column
-countData <- countData[, -1]
-
+if (names(countData)[1] == "") {
+  countData <- countData[, -1]
+}
 # Set tRF sequence as row names
-rownames(countData) <- countData[, "tRF sequence"]
+rownames(countData) <- countData$'MINTbase Unique ID'
 
 # Remove the tRF sequence column
-countData <- countData[, !names(countData) %in% "tRF sequence"]
+countData <- countData[, !(names(countData) %in% c("MINTbase Unique ID", "tRF sequence", "tRF type(s)"))]
 
 # Convert to matrix
 countdata <- as.matrix(countData)
@@ -29,6 +30,14 @@ coldata$condition <- factor(coldata$condition)
 common_samples <- intersect(colnames(countdata), rownames(coldata))
 countdata <- countdata[, common_samples]
 coldata <- coldata[common_samples, , drop = FALSE]  # drop = FALSE to preserve colData as a data frame
+countdata[is.na(countdata)] <- 0
+
+cat("Samples in countdata:\n")
+print(colnames(countdata))
+
+cat("\nSamples in coldata:\n")
+print(rownames(coldata))
+
 
 # Ensure countdata and coldata are not empty after subsetting
 if (ncol(countdata) == 0 || nrow(coldata) == 0) {
@@ -48,8 +57,8 @@ dds <- DESeqDataSetFromMatrix(countData = countdata,
                                 design = ~ condition)
 
 # Run DESeq2 analysis
+dds <- estimateSizeFactors(dds, type='poscounts')
 dds <- DESeq(dds)
-
 # Extract results for healthy vs indolent comparison
 res_indolent <- results(dds, contrast = c("condition", "INDOLENT_CLL", "HEALTHY"))
 
@@ -69,5 +78,5 @@ res_indolent_df <- res_indolent_df[order(abs(res_indolent_df$linearFoldChange), 
 res_aggressive_df <- res_aggressive_df[order(abs(res_aggressive_df$linearFoldChange), decreasing = TRUE), ]
 
 # Export to CSV
-write.csv(res_indolent_df, file = "/mnt/d/bioinformatics/RNAseq_pipeline/diffexp/DE_results_healthy_vs_indolent.csv")
-write.csv(res_aggressive_df, file = "/mnt/d/bioinformatics/RNAseq_pipeline/diffexp/DE_results_healthy_vs_aggressive.csv")
+write.csv(res_indolent_df, file = "/mnt/d/bioinformatics/RNAseq_pipeline/data/DE_results_healthy_vs_indolent.csv")
+write.csv(res_aggressive_df, file = "/mnt/d/bioinformatics/RNAseq_pipeline/data/DE_results_healthy_vs_aggressive.csv")
