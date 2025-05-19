@@ -1,13 +1,13 @@
 # cutadapt parameters
 ADAPTER_LIST="Illumina"
-ADAPTER_LIST2="Nextera"
+ADAPTER_LIST2=""
 PROJECT_NAME="TEST"
 MINLEN=12
 MAXLEN=50
 MIN_QUALITY=25
-cputhreads=16
-cpucores=8
-MAINWORKDIR=/mnt/d/bioinformatics
-output_path=/mnt/d/bioinformatics/RNAseq_pipeline/diffexp/
+cputhreads=40
+cpucores=40
+MAINWORKDIR=/raid/anirudh/bioinformatics
+output_path=/raid/anirudh/bioinformatics/RNAseq_pipeline/diffexp/
 
  
