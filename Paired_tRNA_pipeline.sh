@@ -46,10 +46,11 @@ while IFS='=' read -r name seq; do
     declare "$name=$seq"
 done < adapters.txt
 
-MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR"
+MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$PROJECT_NAME/"
 FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR/"
 
 mkdir -p "$FASTQC_OUTPUT_DIR"
+mkdir -p "$MINT_OUTPUT_DIR"
 
 # FastQC on raw files
 echo "Running FastQC on raw paired files..."
@@ -124,7 +125,7 @@ fi
 echo "Running MINTmap on R1 file..."
 MINT_R1_OUT="$MINT_OUTPUT_DIR-R1"
 
-cd "$MAINWORKDIR/MINT/outputs"
+cd "$MINT_OUTPUT_DIR"
 #./MINTmap.pl -f "$RUNNING_R1" -p "$MINT_R1_OUT"
 conda run -n mintmap38 MINTmap -p "$OUTPUT_DIR-R1" "$RUNNING_R1" 
 echo "Running MINTmap on R2 file..."

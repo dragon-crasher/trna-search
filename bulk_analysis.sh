@@ -122,7 +122,7 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     cd "$ORIG_DIR" || exit
 done < "$TMP_ACCESSION_FILE"
 
-python3 MINTsorter2.py "$PROJECT_NAME"
+# python3 MINTsorter2.py "$PROJECT_NAME"
 log "All SRA files processed."
 
 rm -f "$TMP_ACCESSION_FILE"

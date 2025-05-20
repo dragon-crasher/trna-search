@@ -64,7 +64,7 @@ echo "Current shell: $SHELL"
 
 
 # Define output directories
-MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$OUTPUT_DIR"
+MINT_OUTPUT_DIR="$MAINWORKDIR/MINT/outputs/$PROJECT_NAME/"
 FASTQC_OUTPUT_DIR="$MAINWORKDIR/RNAseq_pipeline/data/fastqc/$OUTPUT_DIR/"
 
 # Create output directories if they don't exist
@@ -129,13 +129,13 @@ fi
 
 # Run MINTmap
 echo "Running MINTmap..."
-cd "$MAINWORKDIR/MINT"
+# cd "$MAINWORKDIR/MINT"
 
 #version 1 of MINTmap
 #./MINTmap.pl -f "$RUNNING" -p "$MINT_OUTPUT_DIR"
 
 #version 2 of MINTmap
-cd "$MAINWORKDIR/MINT/outputs/"
+cd "$MINT_OUTPUT_DIR"
 conda run -n mintmap38 MINTmap -p $OUTPUT_DIR "$RUNNING" 
 # Report runtime
 

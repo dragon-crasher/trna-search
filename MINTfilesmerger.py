@@ -14,27 +14,28 @@ def merge_mint_files(folder_path, set_name):
     dataframes = []
 
     for file in os.listdir(folder_path):
-        file_path = os.path.join(folder_path, file)
+        if file.endswith('.txt') and 'exclusive' in file:
+            file_path = os.path.join(folder_path, file)
 
-        # Check number of lines in the file
-        with open(file_path, 'r') as f:
-            line_count = sum(1 for _ in f)
+            # Check number of lines in the file
+            with open(file_path, 'r') as f:
+                line_count = sum(1 for _ in f)
 
-        if line_count < 7:
-            print(f"Skipping file '{file}' because it has less than 7 lines ({line_count} lines).")
-            continue
+            if line_count < 7:
+                print(f"Skipping file '{file}' because it has less than 7 lines ({line_count} lines).")
+                continue
 
-        # Read file skipping first 5 lines
-        df = pd.read_csv(file_path, sep='\t', skiprows=6)
-        print(f"Columns in {file}: {df.columns.tolist()}")
+            # Read file skipping first 5 lines
+            df = pd.read_csv(file_path, sep='\t', skiprows=6)
+            print(f"Columns in {file}: {df.columns.tolist()}")
 
-        # Select relevant columns
-        filtered_df = df[['License Plate', 'tRF sequence', 'tRF type(s)', 'Unnormalized read counts']]
+            # Select relevant columns
+            filtered_df = df[['License Plate', 'tRF sequence', 'tRF type(s)', 'Unnormalized read counts']]
 
-        # Use filename without extension as sample name
-        sample_name = os.path.splitext(file)[0]
-        filtered_df = filtered_df.rename(columns={'Unnormalized read counts': sample_name})
-        dataframes.append(filtered_df)
+            # Use filename without extension as sample name
+            sample_name = os.path.splitext(file)[0]
+            filtered_df = filtered_df.rename(columns={'Unnormalized read counts': sample_name})
+            dataframes.append(filtered_df)
 
     if not dataframes:
         print("No valid files to merge.")
