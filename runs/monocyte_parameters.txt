@@ -1,0 +1,16 @@
+# cutadapt parameters
+ADAPTER3_LIST="ION3"
+ADAPTER3_LIST2=""
+ADAPTER5_LIST="ION5"
+ADAPTER5_LIST2=""
+PROJECT_NAME="MONOCYTE"
+MINLEN=12
+MAXLEN=50
+MIN_QUALITY=25
+cputhreads=40
+cpucores=40
+MAINWORKDIR=/raid/anirudh/bioinformatics
+output_path=/raid/anirudh/bioinformatics/RNAseq_pipeline/diffexp/
+
+ 
+

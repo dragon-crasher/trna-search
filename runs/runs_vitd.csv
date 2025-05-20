@@ -1,0 +1,12 @@
+Index,SRR_ID,SAMN_ID,Size_1,Size_2,SRX_ID,GSM_ID,Date,Sample_Type,Description,Condition
+1,SRR8387814,SAMN10688737,1.09 G,514.45 Mb,SRX5197591,GSM3537289,2019-01-03 08:10:00,tissue,de-identified benign prostate epithelium,control
+2,SRR8387815,SAMN10688736,740.54 M,353.22 Mb,SRX5197592,GSM3537290,2019-01-03 08:09:00,tissue,de-identified benign prostate epithelium,control
+3,SRR8387816,SAMN10688735,900.52 M,431.20 Mb,SRX5197593,GSM3537291,2019-01-03 08:10:00,tissue,de-identified benign prostate epithelium,control
+4,SRR8387817,SAMN10688734,614.28 M,287.61 Mb,SRX5197594,GSM3537292,2019-01-03 08:09:00,tissue,de-identified benign prostate epithelium,control
+5,SRR8387818,SAMN10688733,1.01 G,472.14 Mb,SRX5197595,GSM3537293,2019-01-03 08:10:00,tissue,de-identified benign prostate epithelium,high
+6,SRR8387819,SAMN10688732,829.17 M,388.91 Mb,SRX5197596,GSM3537294,2019-01-03 08:10:00,tissue,de-identified benign prostate epithelium,high
+7,SRR8387820,SAMN10688731,878.92 M,406.60 Mb,SRX5197597,GSM3537295,2019-01-03 08:10:00,tissue,de-identified benign prostate epithelium,high
+8,SRR8387821,SAMN10688730,775.53 M,363.74 Mb,SRX5197598,GSM3537296,2019-01-03 08:09:00,tissue,de-identified benign prostate epithelium,high
+9,SRR8387822,SAMN10688729,4.00 G,2.40 Gb,SRX5197599,GSM3537297,2019-01-03 08:19:00,cells,de-identified primary prostate epithelial cells,control
+10,SRR8387823,SAMN10688728,4.99 G,3.04 Gb,SRX5197600,GSM3537298,2019-01-03 08:21:00,cells,de-identified primary prostate epithelial cells,high
+

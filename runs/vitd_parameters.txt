@@ -1,0 +1,16 @@
+# cutadapt parameters
+ADAPTER3_LIST="Truseq3"
+ADAPTER3_LIST2=""
+ADAPTER5_LIST=""
+ADAPTER5_LIST2=""
+PROJECT_NAME="VITD"
+MINLEN=17
+MAXLEN=35
+MIN_QUALITY=20
+cputhreads=40
+cpucores=40
+MAINWORKDIR=/raid/anirudh/bioinformatics
+output_path=/raid/anirudh/bioinformatics/RNAseq_pipeline/diffexp/
+
+ 
+
