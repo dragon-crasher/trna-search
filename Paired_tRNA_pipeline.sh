@@ -56,22 +56,42 @@ echo "Running FastQC on raw paired files..."
 fastqc "$INPUT_FILE_R1" "$INPUT_FILE_R2" -o "$FASTQC_OUTPUT_DIR" -t $cputhreads
 
 # Adapter args
-for adapter_name in $ADAPTER_LIST; do
+for adapter_name in $ADAPTER3_LIST; do
     if [[ -z "${!adapter_name:-}" ]]; then
         echo "ERROR: Adapter sequence for '$adapter_name' is not set. Check adapters.txt."
         exit 1
     fi
     adapter_seq="${!adapter_name}"
     ADAPTER_ARGS1+=" -a $adapter_seq"
+
 done
 
-for adapter_name in $ADAPTER_LIST2; do
+for adapter_name in $ADAPTER5_LIST; do
+    if [[ -z "${!adapter_name:-}" ]]; then
+        echo "ERROR: Adapter sequence for '$adapter_name' is not set. Check adapters.txt."
+        exit 1
+    fi
+    adapter_seq="${!adapter_name}"
+    ADAPTER_ARGS1+=" -g $adapter_seq"
+
+done
+
+for adapter_name in $ADAPTER3_LIST2; do
     if [[ -z "${!adapter_name:-}" ]]; then
         echo "ERROR: Adapter sequence for '$adapter_name' is not set. Check adapters.txt."
         exit 1
     fi
     adapter_seq="${!adapter_name}"
     ADAPTER_ARGS2+=" -A $adapter_seq"
+done
+
+for adapter_name in $ADAPTER5_LIST2; do
+    if [[ -z "${!adapter_name:-}" ]]; then
+        echo "ERROR: Adapter sequence for '$adapter_name' is not set. Check adapters.txt."
+        exit 1
+    fi
+    adapter_seq="${!adapter_name}"
+    ADAPTER_ARGS2+=" -G $adapter_seq"
 done
 
 ACCESSION=$(basename "$INPUT_FILE_R1" _1.fastq)

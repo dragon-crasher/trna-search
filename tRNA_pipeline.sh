@@ -92,10 +92,23 @@ if ((run_cutadapt == 1)); then
     echo "Running cutadapt..."
     # Frame the adapter args
     ADAPTER_ARGS=""
-    for adapter_name in $ADAPTER_LIST; do
-        adapter_seq="${!adapter_name}"
-        ADAPTER_ARGS+=" -a $adapter_seq"
-    done
+    	for adapter_name in $ADAPTER3_LIST; do
+        	if [[ -z "${!adapter_name:-}" ]]; then
+        		echo "ERROR: Adapter sequence for '$adapter_name' is not set. Check adapters.txt."
+        		exit 1
+    		fi
+		adapter_seq="${!adapter_name}"
+        	ADAPTER_ARGS+=" -a $adapter_seq"
+	done
+	for adapt_name in $ADAPTER5_LIST; do
+		if [[ -z "${!adapter_name:-}" ]]; then
+        		echo "ERROR: Adapter sequence for '$adapter_name' is not set. Check adapters.txt."
+        		exit 1
+    		fi
+		
+		adapter_seq="${!adapter_name}"
+		ADAPTER_ARGA+=" -g $adapter_seq"
+    	done
 
     # Running cutadapt to remove adapters
     echo "Removing adapters with cutadapt..."

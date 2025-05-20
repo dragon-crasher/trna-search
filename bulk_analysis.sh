@@ -16,8 +16,7 @@ done
 
 # Check for required arguments
 if [[ -z "$PARAMETERS_FILE" || -z "$ACCESSION_FILE" || -z "$CUTADAPT_RUN" ]]; then
-  echo "Usage: $0 -p <parameters.txt> -d <Run_numbers.txt> -a <run cutadapt? :1|0>
-  "
+  echo "Usage: $0 -p <parameters.txt> -d <Run_numbers.txt> -a <run cutadapt? :1|0>" >&2
   exit 1
 fi
 
@@ -25,34 +24,48 @@ echo "Parameters file: $PARAMETERS_FILE"
 echo "Accession File: $ACCESSION_FILE"
 echo "Run Cutadapt: $CUTADAPT_RUN"
 
-
 source "$PARAMETERS_FILE"
+
+# Define WORK_DIR before LOG_FILE
+LOG_DIR="$MAINWORKDIR/RNAseq_pipeline/script/trna_search/logs"
+mkdir -p "$LOG_DIR"
+
+# Set log filename based on accession file basename (without extension)
+ACCESSION_BASENAME=$(basename "$ACCESSION_FILE")
+LOG_BASENAME="${ACCESSION_BASENAME%.*}"
+LOG_FILE="$LOG_DIR/${LOG_BASENAME}_download_log.txt"
+
+# Initialize log file
+echo "$(date '+%Y-%m-%d %H:%M:%S') - Starting SRA download and conversion" > "$LOG_FILE"
+
+log() {
+    echo "$(date '+%Y-%m-%d %H:%M:%S') - $*" | tee -a "$LOG_FILE"
+}
+
 # Validate input files
 if [[ ! -f "$PARAMETERS_FILE" ]]; then
-    echo "ERROR: Parameters file $PARAMETERS_FILE not found! Exiting..."
+    log "ERROR: Parameters file $PARAMETERS_FILE not found! Exiting..."
     exit 1
 fi
 
 if [[ ! -f "$ACCESSION_FILE" ]]; then
-    echo "ERROR: Accession file $ACCESSION_FILE not found! Exiting..."
+    log "ERROR: Accession file $ACCESSION_FILE not found! Exiting..."
     exit 1
 fi
-
 
 WORK_DIR="$MAINWORKDIR/SRA"
 SRA_DIR="$WORK_DIR/sra"
 FASTQ_DIR="$WORK_DIR/fastq"
 
-
 mkdir -p "$SRA_DIR" "$FASTQ_DIR"
-
-LOG_FILE="$WORK_DIR/download_log.txt"
-echo "Starting SRA download and conversion at $(date)" > "$LOG_FILE"
 
 TMP_ACCESSION_FILE="$MAINWORKDIR/RNAseq_pipeline/script/trna_search/clean_accessions.txt"
 sed 's/[[:space:]]*$//' "$ACCESSION_FILE" > "$TMP_ACCESSION_FILE"
 
 ORIG_DIR=$(pwd)
+
+# Define number of CPU threads (adjust as needed)
+cputhreads=4
 
 while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     
@@ -61,57 +74,55 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     [[ -z "$ACCESSION" || "$ACCESSION" == \#* ]] && continue
     ACCESSION=$(echo "$ACCESSION" | xargs)
 
-    echo "Processing accession: $ACCESSION" | tee -a "$LOG_FILE"
+    log "Processing accession: $ACCESSION"
     mkdir -p "$FASTQ_DIR/$ACCESSION"
 
-    echo "Downloading $ACCESSION..." | tee -a "$LOG_FILE"
-    if ! prefetch "$ACCESSION" --output-directory "$SRA_DIR"; then
-        echo "ERROR: Failed to download $ACCESSION, continuing..." | tee -a "$LOG_FILE"
+    log "Downloading $ACCESSION..."
+    if ! prefetch "$ACCESSION" --output-directory "$SRA_DIR" >> "$LOG_FILE" 2>&1; then
+        log "ERROR: Failed to download $ACCESSION, continuing..."
         continue
     fi
 
-    echo "Converting $ACCESSION to FASTQ..." | tee -a "$LOG_FILE"
+    log "Converting $ACCESSION to FASTQ..."
     if ! fasterq-dump "$SRA_DIR/$ACCESSION/$ACCESSION.sra" \
         --outdir "$FASTQ_DIR/$ACCESSION" \
         --temp "$FASTQ_DIR/$ACCESSION/tmp" \
-        --threads $cputhreads \
-        --force; then
-        echo "ERROR: Failed to convert $ACCESSION, continuing..." | tee -a "$LOG_FILE"
+        --threads "$cputhreads" \
+        --force >> "$LOG_FILE" 2>&1; then
+        log "ERROR: Failed to convert $ACCESSION, continuing..."
     fi
 
-    echo "Completed download and conversion for $ACCESSION" | tee -a "$LOG_FILE"
+    log "Completed download and conversion for $ACCESSION"
 
-    echo "Starting tsRNA analysis pipeline for $ACCESSION..." | tee -a "$LOG_FILE"
+    log "Starting tsRNA analysis pipeline for $ACCESSION..."
 
-    cd $MAINWORKDIR/RNAseq_pipeline/script/trna_search
-
+    cd "$MAINWORKDIR/RNAseq_pipeline/script/trna_search" || { log "ERROR: Failed to cd to script directory"; exit 1; }
 
     FASTQ_FILES=("$FASTQ_DIR/$ACCESSION"/*.fastq)
     if [[ ${#FASTQ_FILES[@]} -eq 0 ]]; then
-        echo "ERROR: No FASTQ files found for $ACCESSION" | tee -a "$LOG_FILE"
-        cd "$ORIG_DIR"
+        log "ERROR: No FASTQ files found for $ACCESSION"
+        cd "$ORIG_DIR" || exit
         continue
     fi
 
     if [[ ${#FASTQ_FILES[@]} -eq 1 ]]; then
         ./tRNA_pipeline.sh "${FASTQ_FILES[0]}" "$PARAMETERS_FILE" "$ACCESSION" "$CUTADAPT_RUN" || \
-        echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
+        log "ERROR: Pipeline failed for $ACCESSION"
     elif [[ ${#FASTQ_FILES[@]} -ge 2 ]]; then
-        echo "Found paired-end FASTQ files: ${FASTQ_FILES[0]}, ${FASTQ_FILES[1]}" | tee -a "$LOG_FILE"
-        ./Paired_tRNA_pipeline.sh "${FASTQ_FILES[0]}" "${FASTQ_FILES[1]}" "$PARAMETERS_FILE" "$ACCESSION" $CUTADAPT_RUN || \
-        echo "ERROR: Pipeline failed for $ACCESSION" | tee -a "$LOG_FILE"
+        log "Found paired-end FASTQ files: ${FASTQ_FILES[0]}, ${FASTQ_FILES[1]}"
+        ./Paired_tRNA_pipeline.sh "${FASTQ_FILES[0]}" "${FASTQ_FILES[1]}" "$PARAMETERS_FILE" "$ACCESSION" "$CUTADAPT_RUN" || \
+        log "ERROR: Pipeline failed for $ACCESSION"
     else
-        echo "ERROR: Unexpected number of FASTQ files for $ACCESSION" | tee -a "$LOG_FILE"
+        log "ERROR: Unexpected number of FASTQ files for $ACCESSION"
     fi
 
-
     duration=$SECONDS
-    echo "Pipeline for $ACCESSION completed in $(($duration / 60)) minutes and $(($duration % 60)) seconds."
-    
-    python3 MINTsorter2.py "$PROJECT_NAME"
+    log "Pipeline for $ACCESSION completed in $(($duration / 60)) minutes and $(($duration % 60)) seconds."
 
-    cd "$ORIG_DIR"
+    cd "$ORIG_DIR" || exit
 done < "$TMP_ACCESSION_FILE"
 
-echo "All SRA files processed." | tee -a "$LOG_FILE"
+python3 MINTsorter2.py "$PROJECT_NAME"
+log "All SRA files processed."
+
 rm -f "$TMP_ACCESSION_FILE"
