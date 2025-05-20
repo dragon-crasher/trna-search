@@ -1,5 +1,6 @@
 import pandas as pd
 import sys
+import os
 
 def metaToCol(df, output_path):
     """
@@ -20,32 +21,42 @@ def metaToCol(df, output_path):
     filtered_df.sort_values(by='Condition', inplace=True)
     filtered_df.to_csv(output_path)
 
-    print(f"Filtered metadata written to {output_path}")
+    print(f"Filtered metadata written to {output_path}", file=sys.stderr)  # Info to stderr
 
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: python metaToCol.py <metadata.csv> <output_metadata.csv>")
+    if len(sys.argv) != 2:
+        print("Usage: python metaToCol.py <metadata.csv>", file=sys.stderr)
         sys.exit(1)
 
     metadata_file = sys.argv[1]
-    output_metadata_file = sys.argv[2]
+
+    # Extract base name without extension
+    name = os.path.splitext(os.path.basename(metadata_file))[0]
 
     try:
         df = pd.read_csv(metadata_file)
     except FileNotFoundError:
-        print(f"Error: File '{metadata_file}' not found.")
+        print(f"Error: File '{metadata_file}' not found.", file=sys.stderr)
         sys.exit(1)
     except pd.errors.EmptyDataError:
-        print(f"Error: File '{metadata_file}' is empty or invalid.")
+        print(f"Error: File '{metadata_file}' is empty or invalid.", file=sys.stderr)
         sys.exit(1)
 
     # Check if required columns exist
     required_cols = {'SRR_ID', 'Treatment'}
     if not required_cols.issubset(df.columns):
-        print(f"Error: Input file must contain columns: {required_cols}")
+        print(f"Error: Input file must contain columns: {required_cols}", file=sys.stderr)
         sys.exit(1)
 
-    metaToCol(df, output_metadata_file)
+    # Define output directory and path
+    output_dir = "/raid/anirudh/bioinformatics/RNAseq_pipeline/diffexp"
+    colDataPath = os.path.join(output_dir, f"{name}_colData.csv")
+
+    # Run conversion and save
+    metaToCol(df, colDataPath)
+
+    # Print output directory path to stdout for bash script capture
+    print(output_dir)
 
 if __name__ == "__main__":
     main()
