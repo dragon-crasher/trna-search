@@ -2,10 +2,6 @@
 
 library(DESeq2)
 
-# Fixed directories for input files
-
-
-
 # Get command-line arguments (filenames only)
 args <- commandArgs(trailingOnly = TRUE)
 
@@ -45,20 +41,43 @@ countData <- countData[, !(names(countData) %in% c("License Plate", "tRF sequenc
 countdata <- as.matrix(countData)
 
 # Load metadata
-coldata <- read.csv(coldata_file, row.names = 1, check.names = FALSE)
+coldata <- read.csv(coldata_file, check.names = FALSE)
+
+# Set rownames from Sample column and remove Sample column
+if (!"Sample" %in% colnames(coldata)) {
+  stop("Column 'Sample' not found in colData.")
+}
+rownames(coldata) <- coldata$Sample
+coldata$Sample <- NULL
+
+# Remove duplicate samples in colData
+if (any(duplicated(rownames(coldata)))) {
+  dup_samples <- rownames(coldata)[duplicated(rownames(coldata))]
+  cat("Warning: Duplicate samples found in colData and will be removed:\n")
+  print(dup_samples)
+  coldata <- coldata[!duplicated(rownames(coldata)), ]
+}
 
 # Clean up condition column: replace spaces and special characters with underscores
+if (!"condition" %in% colnames(coldata)) {
+  stop("Column 'condition' not found in colData")
+}
 coldata$condition <- gsub(" ", "_", coldata$condition)
 coldata$condition <- gsub("[^a-zA-Z0-9_.]", "_", coldata$condition)
 
 # Ensure condition column is a factor
 coldata$condition <- factor(coldata$condition)
 
+# Trim whitespace from sample names in both datasets
+colnames(countdata) <- trimws(colnames(countdata))
+rownames(coldata) <- trimws(rownames(coldata))
+
 # Find common samples and subset
 common_samples <- intersect(colnames(countdata), rownames(coldata))
 if (length(common_samples) == 0) {
   stop("No common samples found between count data and colData.")
 }
+
 countdata <- countdata[, common_samples, drop = FALSE]
 coldata <- coldata[common_samples, , drop = FALSE]
 
