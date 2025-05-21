@@ -65,7 +65,7 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # Extract file paths after marker line
-file_list=$(echo "$diffexpout" | awk '/^### DESeq2 output files ###$/ {flag=1; next} flag')
+file_list=$(echo "$diffexpout" | awk '/^### DESeq2 output files ###$/ {flag=1; next} flag && /^\/.*/')
 
 echo "DESeq2 result files:"
 echo "$file_list"
