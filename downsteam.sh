@@ -76,6 +76,11 @@ echo "[$(timestamp)] Script finished."
 
 
 while IFS= read -r filepath; do
-  echo "Filtering and merging DESeq2 results for $filepath"
-  python3 filter_deseq_results_and_merge.py "$MERGED_MINT_FILE" "$filepath"
+  # Trim leading/trailing whitespace from filepath
+  filepath_trimmed=$(echo "$filepath" | xargs)
+  if [[ -z "$filepath_trimmed" ]]; then
+    continue
+  fi
+  echo "Filtering and merging DESeq2 results for $filepath_trimmed"
+  python3 filter_deseq_results_and_merge.py "$MERGED_MINT_FILE" "$filepath_trimmed"
 done <<< "$file_list"
