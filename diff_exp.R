@@ -137,7 +137,7 @@ for (pair in pairs) {
   
   safe_pair1 <- gsub("[^a-zA-Z0-9]", "_", pair[1])
   safe_pair2 <- gsub("[^a-zA-Z0-9]", "_", pair[2])
-  output_file <- paste0("/mnt/d/bioinformatics/RNAseq_pipeline/data/DE_results_", safe_pair1, "_vs_", safe_pair2, "_", coldata_basename, ".csv")
+  output_file <- paste0("/raid/anirudh/bioinformatics/RNAseq_pipeline/data/DE_results_", safe_pair1, "_vs_", safe_pair2, "_", coldata_basename, ".csv")
   
   write.csv(res_df, file = output_file)
   cat("Saved results to:", output_file, "\n")
@@ -145,7 +145,7 @@ for (pair in pairs) {
 
 
 # Save session info for reproducibility
-sessioninfo_file <- paste0("/mnt/d/bioinformatics/RNAseq_pipeline/data/sessionInfo_", coldata_basename, ".txt")
+sessioninfo_file <- paste0("/raid/anirudh/bioinformatics/RNAseq_pipeline/data/sessionInfo_", coldata_basename, ".txt")
 writeLines(capture.output(sessionInfo()), sessioninfo_file)
 cat("Session info saved to:", sessioninfo_file, "\n")
 
