@@ -122,31 +122,27 @@ pairs <- combn(conditions, 2, simplify = FALSE)
 for (pair in pairs) {
   cat("Running DE analysis for:", pair[1], "vs", pair[2], "\n")
   
-  # Get results with adjusted p-value cutoff alpha=0.05
+  # Run results with contrast (optional, for p-values etc.)
   res <- results(dds, contrast = c("condition", pair[1], pair[2]), alpha = 0.05)
   
-  # Apply fold change shrinkage for more accurate log2 fold changes
-  res_shrunk <- lfcShrink(dds, contrast = c("condition", pair[1], pair[2]), res = res, type = "apeglm")
+  # Construct coef name: assuming pair[1] is reference, pair[2] is compared
+  coef_name <- paste0("condition_", pair[2], "_vs_", pair[1])
   
-  # Convert results to data frame
+  # Shrink fold changes using coef
+  res_shrunk <- lfcShrink(dds, coef = coef_name, type = "apeglm")
+  
   res_df <- as.data.frame(res_shrunk)
-  
-  # Calculate linear fold change
   res_df$linearFoldChange <- 2^res_df$log2FoldChange
-  
-  # Sort by absolute linear fold change
   res_df <- res_df[order(abs(res_df$linearFoldChange), decreasing = TRUE), ]
   
-  # Create safe output filename
   safe_pair1 <- gsub("[^a-zA-Z0-9]", "_", pair[1])
   safe_pair2 <- gsub("[^a-zA-Z0-9]", "_", pair[2])
   output_file <- paste0("/mnt/d/bioinformatics/RNAseq_pipeline/data/DE_results_", safe_pair1, "_vs_", safe_pair2, "_", coldata_basename, ".csv")
   
-  # Write results to CSV
   write.csv(res_df, file = output_file)
-  
   cat("Saved results to:", output_file, "\n")
 }
+
 
 # Save session info for reproducibility
 sessioninfo_file <- paste0("/mnt/d/bioinformatics/RNAseq_pipeline/data/sessionInfo_", coldata_basename, ".txt")
