@@ -13,7 +13,7 @@ def merge_mint_files(folder_path, folder_name):
             with open(file_path, 'r') as f:
                 line_count = sum(1 for _ in f)
 
-            if line_count < 7:
+            if line_count < 8:
                 print(f"Skipping file '{file}' because it has less than 7 lines ({line_count} lines).")
                 continue
 

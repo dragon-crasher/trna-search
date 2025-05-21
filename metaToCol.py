@@ -11,10 +11,10 @@ def metaToCol(df, output_path):
     - output_path: Path to save the filtered colData CSV.
     """
     # Select relevant columns and make a copy to avoid SettingWithCopyWarning
-    filtered_df = df.loc[:, ['SRR_ID', 'Treatment']].copy()
+    filtered_df = df.loc[:, ['SRR_ID', df.columns[-1]]].copy()
 
     # Rename columns
-    filtered_df.rename(columns={'SRR_ID': 'Sample', 'Treatment': 'Condition'}, inplace=True)
+    filtered_df.rename(columns={'SRR_ID': 'Sample', df.columns[-1]: 'Condition'}, inplace=True)
 
     # Save to CSV with Sample as the index (common for colData)
     filtered_df.set_index('Sample', inplace=True)
@@ -42,11 +42,6 @@ def main():
         print(f"Error: File '{metadata_file}' is empty or invalid.", file=sys.stderr)
         sys.exit(1)
 
-    # Check if required columns exist
-    required_cols = {'SRR_ID', 'Treatment'}
-    if not required_cols.issubset(df.columns):
-        print(f"Error: Input file must contain columns: {required_cols}", file=sys.stderr)
-        sys.exit(1)
 
     # Define output directory and path
     output_dir = "/raid/anirudh/bioinformatics/RNAseq_pipeline/diffexp"

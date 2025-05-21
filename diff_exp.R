@@ -3,8 +3,8 @@
 library(DESeq2)
 
 # Fixed directories for input files
-count_data_dir <- "/mnt/d/bioinformatics/RNAseq_pipeline/data/"
-coldata_dir <- "/mnt/d/bioinformatics/RNAseq_pipeline/diffexp/"
+
+
 
 # Get command-line arguments (filenames only)
 args <- commandArgs(trailingOnly = TRUE)
@@ -15,8 +15,8 @@ if (length(args) < 2) {
 }
 
 # Join filenames with directories
-count_data_file <- file.path(count_data_dir, args[1])
-coldata_file <- file.path(coldata_dir, args[2])
+count_data_file <- args[1]
+coldata_file <- args[2]
 
 # Extract basename of coldata file without extension for output naming
 coldata_basename <- tools::file_path_sans_ext(basename(coldata_file))

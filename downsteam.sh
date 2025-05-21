@@ -43,7 +43,7 @@ fi
 echo "[$(timestamp)] MINT files merged into: $MERGED_MINT_FILE"
 
 echo "[$(timestamp)] Running meta_to_col.py..."
-COL_DATA_DIR=$(python3 meta_to_col.py "$RUNS_FILE")
+COL_DATA_DIR=$(python3 metaToCol.py "$RUNS_FILE")
 if [[ $? -ne 0 ]]; then
   echo "Error: meta_to_col.py failed." >&2
   exit 1
@@ -57,7 +57,7 @@ if [[ ! -f "$COL_DATA_FILE" ]]; then
 fi
 
 echo "[$(timestamp)] Running diff_exp.R..."
-Rscript diff_exp.R "$COL_DATA_FILE" "$MERGED_MINT_FILE"
+Rscript diff_exp.R "$MERGED_MINT_FILE" "$COL_DATA_FILE"
 if [[ $? -ne 0 ]]; then
   echo "Error: diff_exp.R failed." >&2
   exit 1
