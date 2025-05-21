@@ -118,6 +118,9 @@ conditions <- levels(coldata$condition)
 # Generate all pairwise combinations of conditions
 pairs <- combn(conditions, 2, simplify = FALSE)
 
+# Initialize vector to collect saved file paths
+saved_files <- character()
+
 # Loop through each pair and perform DE analysis
 for (pair in pairs) {
   cat("Running DE analysis for:", pair[1], "vs", pair[2], "\n")
@@ -141,12 +144,18 @@ for (pair in pairs) {
   
   write.csv(res_df, file = output_file)
   cat("Saved results to:", output_file, "\n")
+  
+  # Append to saved files list
+  saved_files <- c(saved_files, output_file)
 }
-
 
 # Save session info for reproducibility
 sessioninfo_file <- paste0("/raid/anirudh/bioinformatics/RNAseq_pipeline/data/sessionInfo_", coldata_basename, ".txt")
 writeLines(capture.output(sessionInfo()), sessioninfo_file)
 cat("Session info saved to:", sessioninfo_file, "\n")
+
+# Print all saved DESeq2 result files for bash script capture
+cat("\n### DESeq2 output files ###\n")
+cat(paste(saved_files, collapse = "\n"), "\n")
 
 cat("All pairwise DE analyses completed.\n")

@@ -57,11 +57,25 @@ if [[ ! -f "$COL_DATA_FILE" ]]; then
 fi
 
 echo "[$(timestamp)] Running diff_exp.R..."
-Rscript diff_exp.R "$MERGED_MINT_FILE" "$COL_DATA_FILE"
+
+diffexpout=$(Rscript diff_exp.R "$MERGED_MINT_FILE" "$COL_DATA_FILE" 2>&1)
 if [[ $? -ne 0 ]]; then
   echo "Error: diff_exp.R failed." >&2
   exit 1
 fi
 
+# Extract file paths after marker line
+file_list=$(echo "$diffexpout" | awk '/^### DESeq2 output files ###$/ {flag=1; next} flag')
+
+echo "DESeq2 result files:"
+echo "$file_list"
+
+
 echo "[$(timestamp)] diff_exp.R completed successfully."
 echo "[$(timestamp)] Script finished."
+
+
+while IFS= read -r filepath; do
+  echo "Filtering and merging DESeq2 results for $filepath"
+  python3 filter_deseq_results_and_merge.py "$MERGED_MINT_FILE" "$filepath"
+done <<< "$file_list"
