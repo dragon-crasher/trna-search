@@ -14,11 +14,11 @@ def metaToCol(df, output_path):
     filtered_df = df.loc[:, ['SRR_ID', df.columns[-1]]].copy()
 
     # Rename columns
-    filtered_df.rename(columns={'SRR_ID': 'Sample', df.columns[-1]: 'Condition'}, inplace=True)
+    filtered_df.rename(columns={'SRR_ID': 'Sample', df.columns[-1]: 'condition'}, inplace=True)
 
     # Save to CSV with Sample as the index (common for colData)
     filtered_df.set_index('Sample', inplace=True)
-    filtered_df.sort_values(by='Condition', inplace=True)
+    filtered_df.sort_values(by='condition', inplace=True)
     filtered_df.to_csv(output_path)
 
     print(f"Filtered metadata written to {output_path}", file=sys.stderr)  # Info to stderr
@@ -42,7 +42,7 @@ def main():
         print(f"Error: File '{metadata_file}' is empty or invalid.", file=sys.stderr)
         sys.exit(1)
 
-
+    
     # Define output directory and path
     output_dir = "/raid/anirudh/bioinformatics/RNAseq_pipeline/diffexp"
     colDataPath = os.path.join(output_dir, f"{name}_colData.csv")
