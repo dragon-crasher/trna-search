@@ -33,9 +33,12 @@ if (names(countData)[1] == "") {
 }
 
 # Set tRF sequence as row names
+if (!"License Plate" %in% colnames(countData)) {
+  stop("Column 'License Plate' not found in count data.")
+}
 rownames(countData) <- countData$'License Plate'
 
-# Remove identifier columns
+# Remove identifier columns not part of counts
 countData <- countData[, !(names(countData) %in% c("License Plate", "tRF sequence", "tRF type(s)"))]
 
 # Convert to matrix
@@ -53,8 +56,13 @@ coldata$condition <- factor(coldata$condition)
 
 # Find common samples and subset
 common_samples <- intersect(colnames(countdata), rownames(coldata))
-countdata <- countdata[, common_samples]
+if (length(common_samples) == 0) {
+  stop("No common samples found between count data and colData.")
+}
+countdata <- countdata[, common_samples, drop = FALSE]
 coldata <- coldata[common_samples, , drop = FALSE]
+
+# Replace NA counts with zero
 countdata[is.na(countdata)] <- 0
 
 cat("Samples in countdata:\n")
@@ -68,17 +76,18 @@ if (ncol(countdata) == 0 || nrow(coldata) == 0) {
   stop("Error: countdata or coldata is empty after subsetting. Check sample names.")
 }
 
-# Verify dimensions
 cat("Dimensions of countdata:", dim(countdata), "\n")
 cat("Dimensions of coldata:", dim(coldata), "\n")
-
-# Verify matching sample names
 cat("Sample names match:", identical(colnames(countdata), rownames(coldata)), "\n")
 
 # Create DESeq2 object
 dds <- DESeqDataSetFromMatrix(countData = countdata,
                               colData = coldata,
                               design = ~ condition)
+
+# Filter out genes with low counts (sum <= 1 across all samples)
+keep <- rowSums(counts(dds)) > 1
+dds <- dds[keep, ]
 
 # Run DESeq2 analysis
 dds <- estimateSizeFactors(dds, type = 'poscounts')
@@ -94,10 +103,14 @@ pairs <- combn(conditions, 2, simplify = FALSE)
 for (pair in pairs) {
   cat("Running DE analysis for:", pair[1], "vs", pair[2], "\n")
   
-  res <- results(dds, contrast = c("condition", pair[1], pair[2]))
+  # Get results with adjusted p-value cutoff alpha=0.05
+  res <- results(dds, contrast = c("condition", pair[1], pair[2]), alpha = 0.05)
+  
+  # Apply fold change shrinkage for more accurate log2 fold changes
+  res_shrunk <- lfcShrink(dds, contrast = c("condition", pair[1], pair[2]), res = res, type = "apeglm")
   
   # Convert results to data frame
-  res_df <- as.data.frame(res)
+  res_df <- as.data.frame(res_shrunk)
   
   # Calculate linear fold change
   res_df$linearFoldChange <- 2^res_df$log2FoldChange
@@ -115,5 +128,10 @@ for (pair in pairs) {
   
   cat("Saved results to:", output_file, "\n")
 }
+
+# Save session info for reproducibility
+sessioninfo_file <- paste0("/mnt/d/bioinformatics/RNAseq_pipeline/data/sessionInfo_", coldata_basename, ".txt")
+writeLines(capture.output(sessionInfo()), sessioninfo_file)
+cat("Session info saved to:", sessioninfo_file, "\n")
 
 cat("All pairwise DE analyses completed.\n")
