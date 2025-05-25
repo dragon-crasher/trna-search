@@ -2,6 +2,7 @@ import pandas as pd
 from functools import reduce
 import os
 import sys
+import re
 
 def merge_mint_files(folder_path, folder_name):
     dataframes = []
@@ -19,10 +20,12 @@ def merge_mint_files(folder_path, folder_name):
 
             df = pd.read_csv(file_path, sep='\t', skiprows=6)
             print(f"Columns in {file}: {df.columns.tolist()}")
-
+            
+            #filtered_df = df[['MINTbase Unique ID', 'tRF sequence', 'tRF type(s)', 'Unnormalized read counts']]
             filtered_df = df[['License Plate', 'tRF sequence', 'tRF type(s)', 'Unnormalized read counts']]
 
-            sample_name = os.path.splitext(file)[0]
+            sample_ne = os.path.splitext(file)[0]
+            sample_name = re.split(r'[._]',sample_ne)
             filtered_df = filtered_df.rename(columns={'Unnormalized read counts': sample_name})
             dataframes.append(filtered_df)
 

@@ -26,6 +26,7 @@ echo "Run Cutadapt: $CUTADAPT_RUN"
 
 source "$PARAMETERS_FILE"
 
+
 # Define WORK_DIR before LOG_FILE
 LOG_DIR="$MAINWORKDIR/RNAseq_pipeline/script/trna_search/logs"
 mkdir -p "$LOG_DIR"
@@ -62,6 +63,29 @@ mkdir -p "$SRA_DIR" "$FASTQ_DIR"
 TMP_ACCESSION_FILE="$MAINWORKDIR/RNAseq_pipeline/script/trna_search/clean_accessions.txt"
 sed 's/[[:space:]]*$//' "$ACCESSION_FILE" > "$TMP_ACCESSION_FILE"
 
+TOTAL_ACCESSIONS=$(grep -v -e '^\s*$' -e '^\s*#' "$TMP_ACCESSION_FILE" | wc -l)
+COUNT=0
+BAR_WIDTH=40
+
+print_progress_bar() {
+  local progress=$1
+  local total=$2
+  local width=$3
+
+  local percent=$(( progress * 100 / total ))
+  local filled=$(( progress * width / total ))
+  local empty=$(( width - filled ))
+
+  # Construct bar string
+  local bar_filled=$(printf "%${filled}s" | tr ' ' '#')
+  local bar_empty=$(printf "%${empty}s")
+
+  # Print progress bar with percentage
+  echo -ne "Progress: [${bar_filled}${bar_empty}] ${percent}% ($progress/$total) \r"
+}
+
+
+
 ORIG_DIR=$(pwd)
 
 # Define number of CPU threads (adjust as needed)
@@ -70,7 +94,7 @@ cputhreads=4
 while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     
     SECONDS=0
-
+    
     [[ -z "$ACCESSION" || "$ACCESSION" == \#* ]] && continue
     ACCESSION=$(echo "$ACCESSION" | xargs)
 
@@ -118,6 +142,9 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
 
     duration=$SECONDS
     log "Pipeline for $ACCESSION completed in $(($duration / 60)) minutes and $(($duration % 60)) seconds."
+
+    COUNT=$((COUNT + 1))
+    print_progress_bar "$COUNT" "$TOTAL_ACCESSIONS" "$BAR_WIDTH"
 
     cd "$ORIG_DIR" || exit
 done < "$TMP_ACCESSION_FILE"
