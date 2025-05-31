@@ -3,8 +3,9 @@ import os
 import sys
 from concurrent.futures import ThreadPoolExecutor
 import numpy as np
+import re
 
-def find_header_line(file_path, header_keyword='License plate', max_lines=20):
+def find_header_line(file_path, header_keyword='License Plate', max_lines=20):
     """
     Optimized header line finder using line cache and early termination.
     """
@@ -12,7 +13,7 @@ def find_header_line(file_path, header_keyword='License plate', max_lines=20):
         for i, line in enumerate(f):
             if i >= max_lines:
                 break
-            if header_keyword in line.lower():
+            if header_keyword in line:
                 return i
     return None
 
@@ -30,6 +31,7 @@ def process_file(file_path):
             file_path,
             sep='\t',
             skiprows=header_line,
+            header=0,
             usecols=lambda col: col.strip() in {
                 'License Plate', 
                 'tRF sequence', 
@@ -54,11 +56,17 @@ def process_file(file_path):
             return None
 
         # Get sample name from filename
-        sample_name = os.path.splitext(os.path.basename(file_path))[0]
-        
+        s = os.path.splitext(os.path.basename(file_path))[0]
+        smp = re.split(r"[-./]", s)  
+        sample_name = smp[0]
+
+        if "R1" in file_path:
+            sample_name += "_R1"
+        if 'R2' in file_path:
+            sample_name += "_R2"
         # Rename and filter
         df = df[required_cols].rename(columns={'Unnormalized read counts': sample_name})
-        df = df.dropna(subset=['License Plate', 'tRF sequence', 'tRF type(s)'])
+        #df = df.dropna(subset=['License Plate', 'tRF sequence', 'tRF type(s)'])
         
         return df if not df.empty else None
 
@@ -98,7 +106,7 @@ def merge_mint_files(folder_path, folder_name):
     print(f"Merged DataFrame shape: {merged_df.shape}")
 
     # Save output
-    output_dir = '/raid/anirudh/bioinformatics/RNAseq_pipeline/data/'
+    output_dir = '/mnt/d/bioinformatics/RNAseq_pipeline/data/'
     os.makedirs(output_dir, exist_ok=True)
     output_file = os.path.join(output_dir, f'{folder_name}_merged_mint_files.csv')
     
@@ -112,8 +120,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     folder_name = sys.argv[1].rstrip('/\\')
-    folder_path = os.path.join('/raid/anirudh/bioinformatics/MINT/outputs/', folder_name)
-
+    #folder_path = os.path.join('/raid/anirudh/bioinformatics/MINT/outputs/', folder_name)
+    folder_path = os.path.join('/mnt/d/bioinformatics/MINT/outputs/', folder_name)
     if not os.path.isdir(folder_path):
         print(f"Error: Folder '{folder_path}' does not exist.")
         sys.exit(1)
