@@ -58,7 +58,15 @@ fi
 
 echo "[$(timestamp)] Running diff_exp.R..."
 
-diffexpout=$(Rscript diff_exp.R "$MERGED_MINT_FILE" "$COL_DATA_FILE" 2>&1)
+SCRIPT_DIR="/raid/anirudh/bioinformatics/RNAseq_pipeline/script/trna_search"
+
+diffexpout=$(docker run --rm \
+  -v "$SCRIPT_DIR":/scripts \
+  -v "$(dirname "$MERGED_MINT_FILE")":/data1 \
+  -v "$(dirname "$COL_DATA_FILE")":/data2 \
+  pegi3s/r_deseq2 \
+  Rscript /scripts/diff_exp.R /data1/$(basename "$MERGED_MINT_FILE") /data2/$(basename "$COL_DATA_FILE") 2>&1)
+
 if [[ $? -ne 0 ]]; then
   echo "Error: diff_exp.R failed." >&2
   exit 1

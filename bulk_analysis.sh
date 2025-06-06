@@ -129,6 +129,8 @@ while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
         continue
     fi
 
+    cd /raid/anirudh/bioinformatics/RNAseq_pipeline/script/trna_search/
+
     if [[ ${#FASTQ_FILES[@]} -eq 1 ]]; then
         ./tRNA_pipeline.sh "${FASTQ_FILES[0]}" "$PARAMETERS_FILE" "$ACCESSION" "$CUTADAPT_RUN" || \
         log "ERROR: Pipeline failed for $ACCESSION"
