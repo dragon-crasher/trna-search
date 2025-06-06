@@ -106,7 +106,7 @@ def merge_mint_files(folder_path, folder_name):
     print(f"Merged DataFrame shape: {merged_df.shape}")
 
     # Save output
-    output_dir = '/mnt/d/bioinformatics/RNAseq_pipeline/data/'
+    output_dir = '/raid/anirudh/bioinformatics/RNAseq_pipeline/data/'
     os.makedirs(output_dir, exist_ok=True)
     output_file = os.path.join(output_dir, f'{folder_name}_merged_mint_files.csv')
     
@@ -120,8 +120,8 @@ if __name__ == "__main__":
         sys.exit(1)
 
     folder_name = sys.argv[1].rstrip('/\\')
-    #folder_path = os.path.join('/raid/anirudh/bioinformatics/MINT/outputs/', folder_name)
-    folder_path = os.path.join('/mnt/d/bioinformatics/MINT/outputs/', folder_name)
+    folder_path = os.path.join('/raid/anirudh/bioinformatics/MINT/outputs/', folder_name)
+    #folder_path = os.path.join('/mnt/d/bioinformatics/MINT/outputs/', folder_name)
     if not os.path.isdir(folder_path):
         print(f"Error: Folder '{folder_path}' does not exist.")
         sys.exit(1)

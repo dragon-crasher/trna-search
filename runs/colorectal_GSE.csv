@@ -1,0 +1,51 @@
+SRR_ID,BioSample,Bases,Bytes,Experiment,GEO_Accession,Sample Name,tissue,create_date,version,source_name
+SRR975551,SAMN02353232,7.93 G,5.22 Gb,SRX347887,GSM1228184,GSM1228184,primary colorectal cancer,2013-09-1110:04:00Z,1,primary colorectal cancer
+SRR975552,SAMN02353258,6.83 G,4.48 Gb,SRX347888,GSM1228185,GSM1228185,primary colorectal cancer,2013-09-1110:00:00Z,1,primary colorectal cancer
+SRR975553,SAMN02353264,5.47 G,3.59 Gb,SRX347889,GSM1228186,GSM1228186,primary colorectal cancer,2013-09-1109:50:00Z,1,primary colorectal cancer
+SRR975554,SAMN02353233,6.98 G,4.59 Gb,SRX347890,GSM1228187,GSM1228187,primary colorectal cancer,2013-09-1110:02:00Z,1,primary colorectal cancer
+SRR975555,SAMN02353255,7.12 G,4.67 Gb,SRX347891,GSM1228188,GSM1228188,primary colorectal cancer,2013-09-1110:01:00Z,1,primary colorectal cancer
+SRR975556,SAMN02353269,6.24 G,4.10 Gb,SRX347892,GSM1228189,GSM1228189,primary colorectal cancer,2013-09-1110:00:00Z,1,primary colorectal cancer
+SRR975557,SAMN02353234,5.42 G,3.55 Gb,SRX347893,GSM1228190,GSM1228190,primary colorectal cancer,2013-09-1109:50:00Z,1,primary colorectal cancer
+SRR975558,SAMN02353260,7.05 G,4.62 Gb,SRX347894,GSM1228191,GSM1228191,primary colorectal cancer,2013-09-1110:02:00Z,1,primary colorectal cancer
+SRR975559,SAMN02353266,5.87 G,3.84 Gb,SRX347895,GSM1228192,GSM1228192,primary colorectal cancer,2013-09-1109:58:00Z,1,primary colorectal cancer
+SRR975560,SAMN02353236,6.71 G,4.37 Gb,SRX347896,GSM1228193,GSM1228193,primary colorectal cancer,2013-09-1110:01:00Z,1,primary colorectal cancer
+SRR975561,SAMN02353257,4.68 G,3.04 Gb,SRX347897,GSM1228194,GSM1228194,primary colorectal cancer,2013-09-1109:50:00Z,1,primary colorectal cancer
+SRR975562,SAMN02353273,5.78 G,3.75 Gb,SRX347898,GSM1228195,GSM1228195,primary colorectal cancer,2013-09-1109:59:00Z,1,primary colorectal cancer
+SRR975563,SAMN02353235,8.60 G,5.62 Gb,SRX347899,GSM1228196,GSM1228196,primary colorectal cancer,2013-09-1110:05:00Z,1,primary colorectal cancer
+SRR975564,SAMN02353251,6.57 G,4.27 Gb,SRX347900,GSM1228197,GSM1228197,primary colorectal cancer,2013-09-1110:03:00Z,1,primary colorectal cancer
+SRR975565,SAMN02353270,5.06 G,3.29 Gb,SRX347901,GSM1228198,GSM1228198,primary colorectal cancer,2013-09-1109:51:00Z,1,primary colorectal cancer
+SRR975566,SAMN02353237,4.84 G,3.15 Gb,SRX347902,GSM1228199,GSM1228199,primary colorectal cancer,2013-09-1109:53:00Z,1,primary colorectal cancer
+SRR975567,SAMN02353253,6.23 G,4.04 Gb,SRX347903,GSM1228200,GSM1228200,primary colorectal cancer,2013-09-1110:00:00Z,1,primary colorectal cancer
+SRR975568,SAMN02353267,5.55 G,3.60 Gb,SRX347904,GSM1228201,GSM1228201,primary colorectal cancer,2013-09-1109:58:00Z,1,primary colorectal cancer
+SRR975569,SAMN02353238,7.01 G,4.60 Gb,SRX347905,GSM1228202,GSM1228202,normal colon,2013-09-1110:02:00Z,1,normal-looking surrounding colonic epithelium
+SRR975570,SAMN02353247,2.94 G,1.94 Gb,SRX347906,GSM1228203,GSM1228203,normal colon,2013-09-1109:48:00Z,1,normal-looking surrounding colonic epithelium
+SRR975571,SAMN02353265,8.42 G,5.54 Gb,SRX347907,GSM1228204,GSM1228204,normal colon,2013-09-1110:05:00Z,1,normal-looking surrounding colonic epithelium
+SRR975572,SAMN02353239,6.39 G,4.22 Gb,SRX347908,GSM1228205,GSM1228205,normal colon,2013-09-1110:03:00Z,1,normal-looking surrounding colonic epithelium
+SRR975573,SAMN02353262,4.87 G,3.19 Gb,SRX347909,GSM1228206,GSM1228206,normal colon,2013-09-1109:57:00Z,1,normal-looking surrounding colonic epithelium
+SRR975574,SAMN02353277,6.49 G,4.26 Gb,SRX347910,GSM1228207,GSM1228207,normal colon,2013-09-1110:02:00Z,1,normal-looking surrounding colonic epithelium
+SRR975575,SAMN02353240,7.38 G,4.84 Gb,SRX347911,GSM1228208,GSM1228208,normal colon,2013-09-1110:04:00Z,1,normal-looking surrounding colonic epithelium
+SRR975576,SAMN02353274,6.86 G,4.51 Gb,SRX347912,GSM1228209,GSM1228209,normal colon,2013-09-1110:03:00Z,1,normal-looking surrounding colonic epithelium
+SRR975577,SAMN02353241,6.73 G,4.40 Gb,SRX347913,GSM1228210,GSM1228210,normal colon,2013-09-1110:02:00Z,1,normal-looking surrounding colonic epithelium
+SRR975578,SAMN02353256,4.50 G,2.92 Gb,SRX347914,GSM1228211,GSM1228211,normal colon,2013-09-1109:54:00Z,1,normal-looking surrounding colonic epithelium
+SRR975579,SAMN02353271,3.82 G,2.49 Gb,SRX347915,GSM1228212,GSM1228212,normal colon,2013-09-1109:48:00Z,1,normal-looking surrounding colonic epithelium
+SRR975580,SAMN02353242,6.64 G,4.31 Gb,SRX347916,GSM1228213,GSM1228213,normal colon,2013-09-1110:05:00Z,1,normal-looking surrounding colonic epithelium
+SRR975581,SAMN02353254,4.80 G,3.14 Gb,SRX347917,GSM1228214,GSM1228214,normal colon,2013-09-1109:56:00Z,1,normal-looking surrounding colonic epithelium
+SRR975582,SAMN02353252,6.50 G,4.23 Gb,SRX347918,GSM1228215,GSM1228215,normal colon,2013-09-1110:01:00Z,1,normal-looking surrounding colonic epithelium
+SRR975583,SAMN02353268,4.92 G,3.19 Gb,SRX347919,GSM1228216,GSM1228216,normal colon,2013-09-1110:03:00Z,1,normal-looking surrounding colonic epithelium
+SRR975584,SAMN02353243,4.66 G,3.02 Gb,SRX347920,GSM1228217,GSM1228217,normal colon,2013-09-1109:58:00Z,1,normal-looking surrounding colonic epithelium
+SRR975585,SAMN02353250,6.84 G,4.45 Gb,SRX347921,GSM1228218,GSM1228218,normal colon,2013-09-1110:03:00Z,1,normal-looking surrounding colonic epithelium
+SRR975586,SAMN02353275,6.30 G,4.07 Gb,SRX347922,GSM1228219,GSM1228219,normal colon,2013-09-1110:01:00Z,1,normal-looking surrounding colonic epithelium
+SRR975587,SAMN02353246,6.91 G,4.55 Gb,SRX347923,GSM1228220,GSM1228220,metastasized cancer,2013-09-1110:03:00Z,1,metastatic colorectal cancer to the liver
+SRR975588,SAMN02353261,7.42 G,4.87 Gb,SRX347924,GSM1228221,GSM1228221,metastasized cancer,2013-09-1110:02:00Z,1,metastatic colorectal cancer to the liver
+SRR975589,SAMN02353278,7.20 G,4.71 Gb,SRX347925,GSM1228222,GSM1228222,metastasized cancer,2013-09-1110:04:00Z,1,metastatic colorectal cancer to the liver
+SRR975590,SAMN02353244,5.38 G,3.53 Gb,SRX347926,GSM1228223,GSM1228223,metastasized cancer,2013-09-1110:00:00Z,1,metastatic colorectal cancer to the liver
+SRR975591,SAMN02353249,6.65 G,4.30 Gb,SRX347927,GSM1228224,GSM1228224,metastasized cancer,2013-09-1110:02:00Z,1,metastatic colorectal cancer to the liver
+SRR975592,SAMN02353276,4.78 G,3.14 Gb,SRX347928,GSM1228225,GSM1228225,metastasized cancer,2013-09-1109:57:00Z,1,metastatic colorectal cancer to the liver
+SRR975593,SAMN02353245,7.91 G,5.15 Gb,SRX347929,GSM1228226,GSM1228226,metastasized cancer,2013-09-1110:04:00Z,1,metastatic colorectal cancer to the liver
+SRR975594,SAMN02353248,4.86 G,3.19 Gb,SRX347930,GSM1228227,GSM1228227,metastasized cancer,2013-09-1109:57:00Z,1,metastatic colorectal cancer to the liver
+SRR975595,SAMN02353272,5.04 G,3.30 Gb,SRX347931,GSM1228228,GSM1228228,metastasized cancer,2013-09-1109:59:00Z,1,metastatic colorectal cancer to the liver
+SRR975596,SAMN02353259,5.51 G,3.59 Gb,SRX347932,GSM1228229,GSM1228229,metastasized cancer,2013-09-1110:02:00Z,1,metastatic colorectal cancer to the liver
+SRR975597,SAMN02353263,5.25 G,3.41 Gb,SRX347933,GSM1228230,GSM1228230,metastasized cancer,2013-09-1109:59:00Z,1,metastatic colorectal cancer to the liver
+SRR975598,SAMN02353279,5.73 G,3.72 Gb,SRX347934,GSM1228231,GSM1228231,metastasized cancer,2013-09-1110:00:00Z,1,metastatic colorectal cancer to the liver
+SRR975599,SAMN02353280,5.97 G,3.90 Gb,SRX347935,GSM1228232,GSM1228232,metastasized cancer,2013-09-1110:01:00Z,1,metastatic colorectal cancer to the liver
+SRR975600,SAMN02353282,5.60 G,3.63 Gb,SRX347936,GSM1228233,GSM1228233,metastasized cancer,2013-09-1110:00:00Z,1,metastatic colorectal cancer to the liver

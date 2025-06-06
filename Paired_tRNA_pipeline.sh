@@ -127,11 +127,11 @@ MINT_R1_OUT="R1_$MINT_OUTPUT_DIR"
 
 cd "$MINT_OUTPUT_DIR"
 #./MINTmap.pl -f "$RUNNING_R1" -p "$MINT_R1_OUT"
-conda run -n mintmap38 MINTmap -p "$OUTPUT_DIR-R1" "$RUNNING_R1" 
+conda run -n mintmap38 MINTmap -p "R1_$OUTPUT_DIR" "$RUNNING_R1" 
 echo "Running MINTmap on R2 file..."
 MINT_R2_OUT="R2_$MINT_OUTPUT_DIR"
 #./MINTmap.pl -f "$RUNNING_R2" -p "$MINT_R2_OUT"
-conda run -n mintmap38 MINTmap -p "$OUTPUT_DIR-R2" "$RUNNING_R2"
+conda run -n mintmap38 MINTmap -p "R2_$OUTPUT_DIR" "$RUNNING_R2"
 
 
 echo "Pipeline completed successfully!"

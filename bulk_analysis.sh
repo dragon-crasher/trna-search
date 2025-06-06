@@ -89,7 +89,7 @@ print_progress_bar() {
 ORIG_DIR=$(pwd)
 
 # Define number of CPU threads (adjust as needed)
-cputhreads=4
+
 
 while IFS= read -r ACCESSION || [[ -n "$ACCESSION" ]]; do
     
