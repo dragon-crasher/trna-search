@@ -60,10 +60,14 @@ def process_file(file_path):
         smp = re.split(r"[-./]", s)  
         sample_name = smp[0]
 
-        if "R1" in file_path:
+        filename = os.path.basename(file_path)
+        if "R1" in filename:
             sample_name += "_R1"
-        if 'R2' in file_path:
+        elif "R2" in filename:
             sample_name += "_R2"
+        else:
+            print(f"No R1 or R2 found in filename: {filename}")
+
         # Rename and filter
         df = df[required_cols].rename(columns={'Unnormalized read counts': sample_name})
         #df = df.dropna(subset=['License Plate', 'tRF sequence', 'tRF type(s)'])
