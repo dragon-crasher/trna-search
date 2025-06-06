@@ -28,7 +28,7 @@ if (names(countData)[1] == "") {
   countData <- countData[, -1]
 }
 
-# Set tRF sequence as row names
+# Set 'License Plate' as row names
 if (!"License Plate" %in% colnames(countData)) {
   stop("Column 'License Plate' not found in count data.")
 }
@@ -81,7 +81,7 @@ if (length(common_samples) == 0) {
 countdata <- countdata[, common_samples, drop = FALSE]
 coldata <- coldata[common_samples, , drop = FALSE]
 
-# Replace NA counts with zero
+# Replace NA counts with zero to avoid errors in DESeq2
 countdata[is.na(countdata)] <- 0
 
 cat("Samples in countdata:\n")
@@ -98,6 +98,11 @@ if (ncol(countdata) == 0 || nrow(coldata) == 0) {
 cat("Dimensions of countdata:", dim(countdata), "\n")
 cat("Dimensions of coldata:", dim(coldata), "\n")
 cat("Sample names match:", identical(colnames(countdata), rownames(coldata)), "\n")
+
+# Optionally, set reference level for condition (replace "control" with your reference)
+if ("control" %in% levels(coldata$condition)) {
+  coldata$condition <- relevel(coldata$condition, ref = "control")
+}
 
 # Create DESeq2 object
 dds <- DESeqDataSetFromMatrix(countData = countdata,
