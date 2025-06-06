@@ -71,7 +71,7 @@ def process_file(file_path):
         # Rename and filter
         df = df[required_cols].rename(columns={'Unnormalized read counts': sample_name})
         #df = df.dropna(subset=['License Plate', 'tRF sequence', 'tRF type(s)'])
-        
+        df.fillna(0, inplace=True)  # Fill NaN with 0 for counts
         return df if not df.empty else None
 
     except Exception as e:
