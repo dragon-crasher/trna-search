@@ -68,6 +68,7 @@ diffexpout=$(docker run --rm \
   Rscript /scripts/diff_exp.R /data1/$(basename "$MERGED_MINT_FILE") /data2/$(basename "$COL_DATA_FILE") 2>&1)
 
 if [[ $? -ne 0 ]]; then
+  echo "$diffexpout"
   echo "Error: diff_exp.R failed." >&2
   exit 1
 fi
