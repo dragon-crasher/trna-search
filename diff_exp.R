@@ -65,6 +65,11 @@ if (!"condition" %in% colnames(coldata)) {
 coldata$condition <- gsub(" ", "_", coldata$condition)
 coldata$condition <- gsub("[^a-zA-Z0-9_.]", "_", coldata$condition)
 
+# Check for NA in condition column
+if (any(is.na(coldata$condition))) {
+  stop("NA values found in 'condition' column of colData. Please fix before running.")
+}
+
 # Ensure condition column is a factor
 coldata$condition <- factor(coldata$condition)
 
@@ -80,6 +85,15 @@ if (length(common_samples) == 0) {
 
 countdata <- countdata[, common_samples, drop = FALSE]
 coldata <- coldata[common_samples, , drop = FALSE]
+
+# Remove samples with zero total counts
+zero_samples <- colnames(countdata)[colSums(countdata) == 0]
+if (length(zero_samples) > 0) {
+  cat("Warning: Samples with zero total counts will be removed:\n")
+  print(zero_samples)
+  countdata <- countdata[, colSums(countdata) > 0, drop = FALSE]
+  coldata <- coldata[colnames(countdata), , drop = FALSE]
+}
 
 # Replace NA counts with zero to avoid errors in DESeq2
 countdata[is.na(countdata)] <- 0
