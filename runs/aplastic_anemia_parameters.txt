@@ -1,0 +1,12 @@
+ADAPTER3_LIST="Truseq"
+ADAPTER3_LIST2="TruseqR2"
+ADAPTER5_LIST=""
+ADAPTER5_LIST2=""
+PROJECT_NAME="AplasticAnemia_HSPC"
+MINLEN=17
+MAXLEN=35
+MIN_QUALITY=20
+cputhreads=40
+cpucores=40
+MAINWORKDIR=/raid/anirudh/bioinformatics
+output_path=/raid/anirudh/bioinformatics/RNAseq_pipeline/diffexp/
